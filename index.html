@@ -27,83 +27,110 @@
       display: block;
     }
 
-    /* ===== 表紙画面 ===== */
+    /* ===== 表紙画面（イラストが見やすいレイアウト） ===== */
     #cover-screen.active {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
       color: #ffffff;
-      /* 添付画像をGitHubのindex.htmlと同じフォルダに「1000004756.jpg」として配置 */
-      background-image: linear-gradient(rgba(15, 25, 35, 0.35), rgba(15, 25, 35, 0.50)),
-                        url('1000004756.jpg');
+      background-image: linear-gradient(
+                          to bottom,
+                          rgba(15, 25, 35, 0.52) 0%,
+                          rgba(15, 25, 35, 0.10) 35%,
+                          rgba(15, 25, 35, 0.12) 65%,
+                          rgba(15, 25, 35, 0.62) 100%
+                        ),
+                        url('IMG_8b01f5e2-4be6-4879-a7f5-1e659f000a9d.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      padding: 1rem;
+      padding: 1.5rem 1rem 1.8rem;
     }
 
-    .cover-container {
+    .cover-header {
       text-align: center;
-      background: rgba(20, 30, 40, 0.44);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 2.8rem 2rem;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.36);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-      max-width: 440px;
-      width: 100%;
+      background: rgba(20, 30, 40, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 0.9rem 1.6rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
-    .cover-container h1 {
-      font-size: 2rem;
+    .cover-header h1 {
+      font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: 0.06em;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.15rem;
       text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     }
 
     .cover-subtitle {
-      font-size: 0.95rem;
-      opacity: 0.95;
-      margin-bottom: 2.2rem;
+      font-size: 0.85rem;
+      opacity: 0.92;
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
     }
 
+    .cover-controls {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(20, 30, 40, 0.48);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
     .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+    }
+
+    @media (max-width: 480px) {
+      .button-group {
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+      .cover-btn {
+        padding: 0.78rem 1rem !important;
+        font-size: 1rem !important;
+      }
     }
 
     .cover-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.6rem;
+      gap: 0.4rem;
       width: 100%;
-      padding: 1rem 1.5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
+      padding: 0.85rem 0.6rem;
+      font-size: 0.98rem;
+      font-weight: 700;
       color: #ffffff;
       border: none;
-      border-radius: 12px;
+      border-radius: 11px;
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.2s ease;
+      transition: transform 0.18s ease, background-color 0.18s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
     }
 
     .cover-btn:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
     .btn-new {
-      background-color: #2e8b57;
+      background-color: rgba(46, 139, 87, 0.92);
     }
     .btn-history {
-      background-color: #4682b4;
+      background-color: rgba(70, 130, 180, 0.92);
     }
     .btn-search {
-      background-color: rgba(255, 255, 255, 0.26);
+      background-color: rgba(255, 255, 255, 0.28);
       border: 1px solid rgba(255, 255, 255, 0.55);
     }
 
@@ -405,10 +432,12 @@
 
   <!-- 1. 表紙画面 -->
   <div id="cover-screen" class="screen active">
-    <div class="cover-container">
+    <div class="cover-header">
       <h1>ビレット長さ管理</h1>
       <p class="cover-subtitle">Billet Length Management</p>
+    </div>
 
+    <div class="cover-controls">
       <div class="button-group">
         <button class="cover-btn btn-new" onclick="showScreen('new-screen')">
           <span>＋</span> 新規データ
@@ -596,515 +625,4 @@
 
       <div class="card">
         <div id="search-list"></div>
-        <p id="search-empty" class="empty-msg">該当するデータはありません。</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const STORAGE_KEY = 'billet_length_records_v4';
-
-    // 初期日付を今日に設定し、最初は10行用意
-    const todayStr = new Date().toISOString().slice(0, 10);
-    document.getElementById('rolling-date').value = todayStr;
-    document.getElementById('measure-date').value = todayStr;
-    addBilletRow(10);
-
-    // 最後にフォーカスされていた入力欄を記録
-    let lastFocusedInput = null;
-    document.addEventListener('focusin', (e) => {
-      if (e.target && e.target.tagName === 'INPUT' && !e.target.readOnly && e.target.id !== 'search-keyword') {
-        lastFocusedInput = e.target;
-      }
-    });
-
-    // ===== 音声入力機能 (Web Speech API) =====
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let voiceMode = null; // 'single' or 'batch'
-    let isRecording = false;
-
-    function normalizeSpokenNumber(text) {
-      // 全角数字・小数点・マイナスを半角へ変換
-      let s = text.replace(/[０-９．－]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
-      s = s.replace(/マイナス/g, '-').replace(/点/g, '.');
-      const match = s.match(/-?\d+(\.\d+)?/);
-      return match ? match[0] : '';
-    }
-
-    function updateVoiceUI(active, message) {
-      const btnSingle = document.getElementById('btn-voice-single');
-      const btnBatch = document.getElementById('btn-voice-batch');
-      const statusEl = document.getElementById('voice-status');
-
-      btnSingle.classList.remove('recording');
-      btnBatch.classList.remove('recording');
-      btnSingle.textContent = '🎙 選択欄に音声入力';
-      btnBatch.textContent = '📏 実測寸法を連続音声入力';
-
-      if (active) {
-        if (voiceMode === 'single') {
-          btnSingle.classList.add('recording');
-          btnSingle.textContent = '⏹ 音声入力を停止';
-        } else if (voiceMode === 'batch') {
-          btnBatch.classList.add('recording');
-          btnBatch.textContent = '⏹ 連続入力を停止';
-        }
-      }
-      if (message) {
-        statusEl.textContent = message;
-      }
-    }
-
-    function stopVoiceInput(msg) {
-      isRecording = false;
-      voiceMode = null;
-      if (recognition) {
-        try { recognition.stop(); } catch (e) {}
-      }
-      updateVoiceUI(false, msg || '音声入力を停止しました。');
-    }
-
-    function toggleVoiceInput(mode) {
-      if (!SpeechRecognition) {
-        alert('お使いのブラウザは音声認識に対応していません。Chromeなどの対応ブラウザをご利用ください。');
-        return;
-      }
-
-      if (isRecording && voiceMode === mode) {
-        stopVoiceInput('音声入力を停止しました。');
-        return;
-      }
-
-      if (isRecording) {
-        stopVoiceInput();
-      }
-
-      if (mode === 'single' && !lastFocusedInput) {
-        alert('先に文字や数値を入れたい入力欄をタップしてください。');
-        return;
-      }
-
-      voiceMode = mode;
-      isRecording = true;
-
-      recognition = new SpeechRecognition();
-      recognition.lang = 'ja-JP';
-      recognition.interimResults = false;
-      recognition.continuous = (mode === 'batch');
-
-      if (mode === 'single') {
-        updateVoiceUI(true, '🎙 聞き取り中... 選択中の欄に入れる内容を話してください。');
-      } else {
-        updateVoiceUI(true, '📏 連続聞き取り中... 実測寸法の数字を順に話してください（「ストップ」で終了）。');
-      }
-
-      recognition.onresult = (event) => {
-        const result = event.results[event.results.length - 1];
-        if (!result.isFinal) return;
-        const transcript = result[0].transcript.trim();
-
-        if (transcript.includes('ストップ') || transcript.includes('終了')) {
-          stopVoiceInput(`「${transcript}」を認識したため終了しました。`);
-          return;
-        }
-
-        if (voiceMode === 'single' && lastFocusedInput) {
-          if (lastFocusedInput.type === 'number') {
-            const num = normalizeSpokenNumber(transcript);
-            if (num !== '') {
-              lastFocusedInput.value = num;
-              lastFocusedInput.dispatchEvent(new Event('input', { bubbles: true }));
-              updateVoiceUI(false, `入力完了: 「${transcript}」 → ${num}`);
-            } else {
-              updateVoiceUI(false, `数値を認識できませんでした（「${transcript}」）。`);
-            }
-          } else {
-            lastFocusedInput.value = transcript;
-            lastFocusedInput.dispatchEvent(new Event('input', { bubbles: true }));
-            updateVoiceUI(false, `入力完了: 「${transcript}」`);
-          }
-          isRecording = false;
-          voiceMode = null;
-        } else if (voiceMode === 'batch') {
-          const num = normalizeSpokenNumber(transcript);
-          if (num === '') {
-            document.getElementById('voice-status').textContent = `聞き取り: 「${transcript}」（数値を話してください）`;
-            return;
-          }
-
-          // 実測寸法が空いている最初の行を探して入力
-          let actualInputs = Array.from(document.querySelectorAll('#billet-tbody .actual-len'));
-          let targetInput = actualInputs.find(inp => inp.value.trim() === '');
-
-          if (!targetInput) {
-            addBilletRow(1);
-            actualInputs = Array.from(document.querySelectorAll('#billet-tbody .actual-len'));
-            targetInput = actualInputs[actualInputs.length - 1];
-          }
-
-          targetInput.value = num;
-          targetInput.focus();
-          recalcAll();
-
-          const rowIndex = actualInputs.indexOf(targetInput) + 1;
-          document.getElementById('voice-status').textContent =
-            `No.${rowIndex} の実測寸法に「${num}」を入力しました。続けて次の数値を話してください。`;
-        }
-      };
-
-      recognition.onerror = (event) => {
-        if (event.error === 'no-speech' && voiceMode === 'batch') return;
-        stopVoiceInput(`音声認識エラー: ${event.error}`);
-      };
-
-      recognition.onend = () => {
-        if (isRecording && voiceMode === 'batch') {
-          try { recognition.start(); } catch (e) {}
-        } else if (isRecording) {
-          isRecording = false;
-          voiceMode = null;
-          updateVoiceUI(false);
-        }
-      };
-
-      try {
-        recognition.start();
-      } catch (e) {
-        stopVoiceInput('音声認識を開始できませんでした。');
-      }
-    }
-
-    // ===== 画面・データ管理 =====
-    function getRecords() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    }
-
-    function setRecords(records) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-    }
-
-    function showScreen(screenId) {
-      if (isRecording) {
-        stopVoiceInput();
-      }
-      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-
-      if (screenId === 'history-screen') {
-        renderHistory();
-      } else if (screenId === 'search-screen') {
-        renderSearch();
-      }
-    }
-
-    function addBilletRow(count = 1) {
-      const tbody = document.getElementById('billet-tbody');
-      for (let i = 0; i < count; i++) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="row-num"></td>
-          <td><input type="text" class="pit-no" placeholder="ピット"></td>
-          <td><input type="text" class="charge-no" placeholder="チャージ"></td>
-          <td><input type="text" class="rolling-size" placeholder="サイズ"></td>
-          <td><input type="text" class="stamp-no" placeholder="刻印"></td>
-          <td><input type="text" class="row-memo" placeholder="メモ"></td>
-          <td><input type="number" step="any" class="plan-len" oninput="recalcAll()"></td>
-          <td><input type="number" step="any" class="actual-len" oninput="recalcAll()"></td>
-          <td><input type="text" class="w-check" placeholder="Wチェック"></td>
-          <td class="diff-cell">-</td>
-          <td><button type="button" class="remove-row-btn" onclick="removeRow(this)">削除</button></td>
-        `;
-        tbody.appendChild(tr);
-      }
-      refreshRowNumbers();
-      recalcAll();
-    }
-
-    function removeRow(btn) {
-      const tbody = document.getElementById('billet-tbody');
-      if (tbody.rows.length <= 1) {
-        alert('最低1行は必要です。');
-        return;
-      }
-      btn.closest('tr').remove();
-      refreshRowNumbers();
-      recalcAll();
-    }
-
-    function refreshRowNumbers() {
-      const rows = document.querySelectorAll('#billet-tbody tr');
-      rows.forEach((tr, idx) => {
-        tr.querySelector('.row-num').textContent = idx + 1;
-      });
-    }
-
-    // 予定寸法が未入力の行は直前の予定寸法を引き継いで計算する
-    function getEffectivePlanRows() {
-      const rows = Array.from(document.querySelectorAll('#billet-tbody tr'));
-      let lastPlan = NaN;
-
-      return rows.map(tr => {
-        const planInput = tr.querySelector('.plan-len');
-        const rawPlan = planInput.value.trim();
-        const parsedPlan = rawPlan !== '' ? parseFloat(rawPlan) : NaN;
-
-        let effectivePlan = NaN;
-        let isInherited = false;
-
-        if (!isNaN(parsedPlan)) {
-          effectivePlan = parsedPlan;
-          lastPlan = parsedPlan;
-        } else if (!isNaN(lastPlan)) {
-          effectivePlan = lastPlan;
-          isInherited = true;
-        }
-
-        planInput.classList.toggle('inherited-plan', isInherited);
-        planInput.placeholder = (!isNaN(lastPlan) && rawPlan === '') ? String(lastPlan) : '';
-
-        return {
-          tr,
-          rawPlan,
-          effectivePlan,
-          isInherited
-        };
-      });
-    }
-
-    function recalcAll() {
-      const rowInfoList = getEffectivePlanRows();
-      const actuals = [];
-
-      rowInfoList.forEach(({ tr, effectivePlan }) => {
-        const actualVal = parseFloat(tr.querySelector('.actual-len').value);
-        const diffCell = tr.querySelector('.diff-cell');
-
-        diffCell.classList.remove('diff-plus', 'diff-minus');
-
-        if (!isNaN(actualVal)) {
-          actuals.push(actualVal);
-        }
-
-        if (!isNaN(effectivePlan) && !isNaN(actualVal)) {
-          const diff = actualVal - effectivePlan;
-          const rounded = Math.round(diff * 1000) / 1000;
-          diffCell.textContent = (rounded > 0 ? '+' : '') + rounded;
-          if (rounded > 0) diffCell.classList.add('diff-plus');
-          if (rounded < 0) diffCell.classList.add('diff-minus');
-        } else {
-          diffCell.textContent = '-';
-        }
-      });
-
-      const meanInput = document.getElementById('mean-x');
-      const sigmaInput = document.getElementById('sigma-val');
-
-      if (actuals.length === 0) {
-        meanInput.value = '';
-        sigmaInput.value = '';
-        return;
-      }
-
-      const sum = actuals.reduce((acc, v) => acc + v, 0);
-      const mean = sum / actuals.length;
-      const variance = actuals.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / actuals.length;
-      const sigma = Math.sqrt(variance);
-
-      meanInput.value = (Math.round(mean * 1000) / 1000).toString();
-      sigmaInput.value = (Math.round(sigma * 1000) / 1000).toString();
-    }
-
-    function collectRowsData() {
-      const rowInfoList = getEffectivePlanRows();
-      const items = [];
-
-      rowInfoList.forEach(({ tr, rawPlan, effectivePlan }) => {
-        const pitNo = tr.querySelector('.pit-no').value.trim();
-        const chargeNo = tr.querySelector('.charge-no').value.trim();
-        const rollingSize = tr.querySelector('.rolling-size').value.trim();
-        const stampNo = tr.querySelector('.stamp-no').value.trim();
-        const rowMemo = tr.querySelector('.row-memo').value.trim();
-        const actualLen = tr.querySelector('.actual-len').value.trim();
-        const wCheck = tr.querySelector('.w-check').value.trim();
-        const diffText = tr.querySelector('.diff-cell').textContent;
-
-        const savedPlanLen = rawPlan !== '' ? rawPlan : (!isNaN(effectivePlan) ? String(effectivePlan) : '');
-
-        if (pitNo || chargeNo || rollingSize || stampNo || rowMemo || savedPlanLen || actualLen || wCheck) {
-          items.push({
-            pitNo,
-            chargeNo,
-            rollingSize,
-            stampNo,
-            rowMemo,
-            planLen: savedPlanLen,
-            actualLen,
-            wCheck,
-            diff: diffText
-          });
-        }
-      });
-
-      return items;
-    }
-
-    function saveData() {
-      if (isRecording) {
-        stopVoiceInput();
-      }
-      const items = collectRowsData();
-      if (items.length === 0) {
-        alert('表に1本以上のデータを入力してください。');
-        return;
-      }
-
-      const record = {
-        id: Date.now(),
-        rollingDate: document.getElementById('rolling-date').value,
-        measureDate: document.getElementById('measure-date').value,
-        material: document.getElementById('material').value.trim(),
-        mold: document.getElementById('mold').value.trim(),
-        cropType: document.getElementById('crop-type').value.trim(),
-        tolerance: document.getElementById('tolerance').value.trim(),
-        outOfTolerance: document.getElementById('out-of-tolerance').value.trim(),
-        targetAllowance: document.getElementById('target-allowance').value.trim(),
-        correction: document.getElementById('correction').value.trim(),
-        startTime: document.getElementById('start-time').value,
-        endTime: document.getElementById('end-time').value,
-        measureTemp: document.getElementById('measure-temp').value.trim(),
-        worker1: document.getElementById('worker1').value.trim(),
-        worker2: document.getElementById('worker2').value.trim(),
-        meanX: document.getElementById('mean-x').value,
-        sigma: document.getElementById('sigma-val').value,
-        remarks: document.getElementById('remarks').value.trim(),
-        items
-      };
-
-      const records = getRecords();
-      records.unshift(record);
-      setRecords(records);
-
-      // 表と備考をリセット
-      document.getElementById('remarks').value = '';
-      document.getElementById('billet-tbody').innerHTML = '';
-      addBilletRow(10);
-
-      alert('保存しました！');
-      showScreen('history-screen');
-    }
-
-    function deleteRecord(id) {
-      if (!confirm('この記録を削除しますか？')) return;
-      const records = getRecords().filter(r => r.id !== id);
-      setRecords(records);
-      renderHistory();
-    }
-
-    function buildRecordHtml(rec, showDelete) {
-      const rowsHtml = rec.items.map((it, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>${it.pitNo || '-'}</td>
-          <td>${it.chargeNo || '-'}</td>
-          <td>${it.rollingSize || '-'}</td>
-          <td>${it.stampNo || '-'}</td>
-          <td>${it.rowMemo || '-'}</td>
-          <td>${it.planLen || '-'}</td>
-          <td>${it.actualLen || '-'}</td>
-          <td>${it.wCheck || '-'}</td>
-          <td>${it.diff || '-'}</td>
-        </tr>
-      `).join('');
-
-      return `
-        <div class="history-item">
-          <div class="history-meta">
-            <strong>圧延日:</strong> ${rec.rollingDate || '-'} ／
-            <strong>測定日:</strong> ${rec.measureDate || '-'} ／
-            <strong>材質:</strong> ${rec.material || '-'} ／
-            <strong>鋳型:</strong> ${rec.mold || '-'} ／
-            <strong>クロップ区分:</strong> ${rec.cropType || '-'}<br>
-            <strong>交差:</strong> ${rec.tolerance || '-'} ／
-            <strong>交差外れ:</strong> ${rec.outOfTolerance || '-'} ／
-            <strong>狙い代:</strong> ${rec.targetAllowance || '-'} ／
-            <strong>補正:</strong> ${rec.correction || '-'} ／
-            <strong>時間:</strong> ${rec.startTime || '-'} 〜 ${rec.endTime || '-'} ／
-            <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'}<br>
-            <strong>作業者:</strong> ${rec.worker1 || '-'}、${rec.worker2 || '-'} ／
-            <strong>平均値(x̄):</strong> ${rec.meanX || '-'} ／
-            <strong>σ:</strong> ${rec.sigma || '-'}<br>
-            <strong>備考:</strong> ${rec.remarks || '-'}
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>ピットNo.</th>
-                  <th>チャージNo.</th>
-                  <th>圧延サイズ</th>
-                  <th>刻印</th>
-                  <th>メモ</th>
-                  <th>予定寸法</th>
-                  <th>実測寸法</th>
-                  <th>実測寸法Wチェック</th>
-                  <th>予定寸法と実寸法の差</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          </div>
-          ${showDelete ? `<button type="button" class="del-btn" onclick="deleteRecord(${rec.id})">この記録を削除</button>` : ''}
-        </div>
-      `;
-    }
-
-    function renderHistory() {
-      const records = getRecords();
-      const listEl = document.getElementById('history-list');
-      const emptyEl = document.getElementById('history-empty');
-
-      if (records.length === 0) {
-        listEl.innerHTML = '';
-        emptyEl.style.display = 'block';
-        return;
-      }
-
-      emptyEl.style.display = 'none';
-      listEl.innerHTML = records.map(rec => buildRecordHtml(rec, true)).join('');
-    }
-
-    function renderSearch() {
-      const kw = document.getElementById('search-keyword').value.trim().toLowerCase();
-      const records = getRecords();
-      const listEl = document.getElementById('search-list');
-      const emptyEl = document.getElementById('search-empty');
-
-      const filtered = records.filter(rec => {
-        const metaText = [
-          rec.rollingDate, rec.measureDate, rec.material, rec.mold, rec.cropType,
-          rec.tolerance, rec.outOfTolerance, rec.targetAllowance, rec.correction,
-          rec.startTime, rec.endTime, rec.measureTemp, rec.worker1, rec.worker2, rec.remarks
-        ].join(' ').toLowerCase();
-
-        const itemText = (rec.items || []).map(it =>
-          [it.pitNo, it.chargeNo, it.rollingSize, it.stampNo, it.rowMemo, it.planLen, it.actualLen, it.wCheck].join(' ')
-        ).join(' ').toLowerCase();
-
-        return !kw || metaText.includes(kw) || itemText.includes(kw);
-      });
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = '';
-        emptyEl.style.display = 'block';
-        return;
-      }
-
-      emptyEl.style.display = 'none';
-      listEl.innerHTML = filtered.map(rec => buildRecordHtml(rec, false)).join('');
-    }
-  </script>
-</body>
-</html>
+        <p id="search-empty" class="empty-msg">該当する
