@@ -591,4 +591,138 @@
       return items;
     }
 
-    function saveData
+    function saveData() {
+      const items = collectRowsData();
+      if (items.length === 0) {
+        alert('表に1本以上のデータを入力してください。');
+        return;
+      }
+
+      const record = {
+        id: Date.now(),
+        rollingDate: document.getElementById('rolling-date').value,
+        measureDate: document.getElementById('measure-date').value,
+        material: document.getElementById('material').value.trim(),
+        correction: document.getElementById('correction').value.trim(),
+        startTime: document.getElementById('start-time').value,
+        endTime: document.getElementById('end-time').value,
+        measureTemp: document.getElementById('measure-temp').value.trim(),
+        worker1: document.getElementById('worker1').value.trim(),
+        worker2: document.getElementById('worker2').value.trim(),
+        meanX: document.getElementById('mean-x').value,
+        sigma: document.getElementById('sigma-val').value,
+        items
+      };
+
+      const records = getRecords();
+      records.unshift(record);
+      setRecords(records);
+
+      // 表をリセット
+      document.getElementById('billet-tbody').innerHTML = '';
+      addBilletRow(10);
+
+      alert('保存しました！');
+      showScreen('history-screen');
+    }
+
+    function deleteRecord(id) {
+      if (!confirm('この記録を削除しますか？')) return;
+      const records = getRecords().filter(r => r.id !== id);
+      setRecords(records);
+      renderHistory();
+    }
+
+    function buildRecordHtml(rec, showDelete) {
+      const rowsHtml = rec.items.map((it, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${it.pitNo || '-'}</td>
+          <td>${it.chargeNo || '-'}</td>
+          <td>${it.stampNo || '-'}</td>
+          <td>${it.planLen || '-'}</td>
+          <td>${it.actualLen || '-'}</td>
+          <td>${it.diff || '-'}</td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="history-item">
+          <div class="history-meta">
+            <strong>圧延日:</strong> ${rec.rollingDate || '-'} ／
+            <strong>測定日:</strong> ${rec.measureDate || '-'} ／
+            <strong>材質:</strong> ${rec.material || '-'} ／
+            <strong>補正:</strong> ${rec.correction || '-'}<br>
+            <strong>時間:</strong> ${rec.startTime || '-'} 〜 ${rec.endTime || '-'} ／
+            <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'} ／
+            <strong>作業者:</strong> ${rec.worker1 || '-'}、${rec.worker2 || '-'}<br>
+            <strong>平均値(x̄):</strong> ${rec.meanX || '-'} ／
+            <strong>σ:</strong> ${rec.sigma || '-'}
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>ピットNo.</th>
+                  <th>チャージNo.</th>
+                  <th>刻印</th>
+                  <th>予定寸法</th>
+                  <th>実寸法</th>
+                  <th>差</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+          ${showDelete ? `<button type="button" class="del-btn" onclick="deleteRecord(${rec.id})">この記録を削除</button>` : ''}
+        </div>
+      `;
+    }
+
+    function renderHistory() {
+      const records = getRecords();
+      const listEl = document.getElementById('history-list');
+      const emptyEl = document.getElementById('history-empty');
+
+      if (records.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = records.map(rec => buildRecordHtml(rec, true)).join('');
+    }
+
+    function renderSearch() {
+      const kw = document.getElementById('search-keyword').value.trim().toLowerCase();
+      const records = getRecords();
+      const listEl = document.getElementById('search-list');
+      const emptyEl = document.getElementById('search-empty');
+
+      const filtered = records.filter(rec => {
+        const metaText = [
+          rec.rollingDate, rec.measureDate, rec.material, rec.correction,
+          rec.startTime, rec.endTime, rec.measureTemp, rec.worker1, rec.worker2
+        ].join(' ').toLowerCase();
+
+        const itemText = (rec.items || []).map(it =>
+          [it.pitNo, it.chargeNo, it.stampNo, it.planLen, it.actualLen].join(' ')
+        ).join(' ').toLowerCase();
+
+        return !kw || metaText.includes(kw) || itemText.includes(kw);
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = filtered.map(rec => buildRecordHtml(rec, false)).join('');
+    }
+  </script>
+</body>
+</html>
