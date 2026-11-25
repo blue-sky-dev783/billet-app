@@ -13,8 +13,8 @@
 
     body {
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      background-color: #f4f6f8;
-      color: #333333;
+      background-color: #f2f5f8;
+      color: #2c353d;
       min-height: 100vh;
     }
 
@@ -35,7 +35,7 @@
       color: #ffffff;
       /* ヘルメットをかぶったペンギンが寸法測定をしているイラスト背景 */
       /* ※GitHubに画像を置く場合は ./penguin-measure.png などに変更してください */
-      background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)),
+      background-image: linear-gradient(rgba(15, 25, 35, 0.38), rgba(15, 25, 35, 0.52)),
                         url('penguin-measure.png');
       background-size: cover;
       background-position: center;
@@ -45,13 +45,13 @@
 
     .cover-container {
       text-align: center;
-      background: rgba(20, 30, 40, 0.38);
+      background: rgba(20, 30, 40, 0.42);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       padding: 2.8rem 2rem;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
       max-width: 440px;
       width: 100%;
     }
@@ -110,7 +110,7 @@
 
     /* ===== サブ画面共通ヘッダー・レイアウト ===== */
     .app-header {
-      background-color: #2c3e50;
+      background-color: #243447;
       color: #ffffff;
       padding: 0.9rem 1rem;
       display: flex;
@@ -119,6 +119,7 @@
       position: sticky;
       top: 0;
       z-index: 20;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     }
 
     .app-header h2 {
@@ -128,65 +129,94 @@
     }
 
     .back-btn {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.16);
       color: #ffffff;
       border: none;
-      padding: 0.45rem 0.8rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 6px;
       font-size: 0.9rem;
       cursor: pointer;
     }
 
     .content {
-      padding: 0.8rem;
-      max-width: 1200px;
+      padding: 0.85rem;
+      max-width: 1280px;
       margin: 0 auto;
     }
 
     .card {
       background: #ffffff;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      padding: 1.1rem;
+      box-shadow: 0 2px 10px rgba(36, 52, 71, 0.06);
       margin-bottom: 1rem;
+      border: 1px solid #e4e9ef;
     }
 
     .section-title {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       font-weight: 700;
-      color: #2c3e50;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.35rem;
-      border-bottom: 2px solid #eef2f5;
+      color: #243447;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid #e8eef4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .section-note {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #5c6b7a;
     }
 
     /* ヘッダー情報グリッド */
     .meta-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .form-group.span-2 {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 600px) {
+      .form-group.span-2 {
+        grid-column: span 1;
+      }
     }
 
     .form-group label {
       display: block;
       font-size: 0.8rem;
       font-weight: 600;
-      margin-bottom: 0.25rem;
-      color: #555;
+      margin-bottom: 0.28rem;
+      color: #495664;
     }
 
     .form-group input {
       width: 100%;
-      padding: 0.55rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 0.58rem 0.65rem;
+      border: 1px solid #c5d0dc;
+      border-radius: 7px;
       font-size: 0.95rem;
+      background-color: #ffffff;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #4682b4;
+      box-shadow: 0 0 0 2px rgba(70, 130, 180, 0.15);
     }
 
     .form-group input[readonly] {
-      background-color: #f0f4f8;
+      background-color: #eef3f8;
       font-weight: 700;
-      color: #1f4e78;
+      color: #1c4973;
     }
 
     /* 入力テーブル */
@@ -199,28 +229,34 @@
       border-collapse: collapse;
       font-size: 13px;
       background: #ffffff;
-      min-width: 820px;
+      min-width: 920px;
     }
 
     th, td {
-      border: 1px solid #cfd8dc;
+      border: 1px solid #cbd5e0;
       padding: 6px 4px;
       text-align: center;
     }
 
     th {
-      background-color: #eef2f5;
+      background-color: #edf2f7;
       font-weight: 600;
+      color: #243447;
       white-space: nowrap;
     }
 
     td input {
       width: 100%;
       padding: 5px 6px;
-      border: 1px solid #d0d7de;
-      border-radius: 4px;
+      border: 1px solid #cfd8e3;
+      border-radius: 5px;
       font-size: 13px;
       text-align: center;
+    }
+
+    td input.inherited-plan {
+      background-color: #f4f8fc;
+      color: #3b6998;
     }
 
     .diff-cell {
@@ -233,7 +269,7 @@
     .row-actions {
       display: flex;
       gap: 0.6rem;
-      margin-top: 0.75rem;
+      margin-top: 0.8rem;
       flex-wrap: wrap;
     }
 
@@ -242,7 +278,7 @@
       color: #ffffff;
       border: none;
       padding: 0.6rem 1rem;
-      border-radius: 6px;
+      border-radius: 7px;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
@@ -253,36 +289,37 @@
       color: #fff;
       border: none;
       padding: 4px 8px;
-      border-radius: 4px;
+      border-radius: 5px;
       font-size: 11px;
       cursor: pointer;
     }
 
     .submit-btn {
       width: 100%;
-      padding: 0.9rem;
+      padding: 0.95rem;
       background-color: #2e8b57;
       color: #ffffff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 3px 10px rgba(46, 139, 87, 0.25);
     }
 
     .history-item {
-      border: 1px solid #dce3e8;
-      border-radius: 8px;
-      padding: 0.85rem;
-      margin-bottom: 0.85rem;
-      background: #fafcfd;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin-bottom: 0.9rem;
+      background: #f9fbfd;
     }
 
     .history-meta {
-      font-size: 0.82rem;
-      line-height: 1.65;
-      margin-bottom: 0.6rem;
-      color: #222;
+      font-size: 0.83rem;
+      line-height: 1.7;
+      margin-bottom: 0.65rem;
+      color: #243447;
     }
 
     .del-btn {
@@ -293,7 +330,7 @@
       border-radius: 5px;
       font-size: 12px;
       cursor: pointer;
-      margin-top: 0.5rem;
+      margin-top: 0.55rem;
     }
 
     .empty-msg {
@@ -335,9 +372,12 @@
     </div>
 
     <div class="content">
-      <!-- 表の上の項目 -->
+      <!-- 測定・ロット情報 -->
       <div class="card">
-        <div class="section-title">測定・ロット情報</div>
+        <div class="section-title">
+          <span>測定・ロット情報</span>
+          <span class="section-note">平均値(x̄)・σは実測寸法から自動計算</span>
+        </div>
         <div class="meta-grid">
           <div class="form-group">
             <label for="rolling-date">圧延日</label>
@@ -366,6 +406,10 @@
           <div class="form-group">
             <label for="out-of-tolerance">交差外れ</label>
             <input type="text" id="out-of-tolerance" placeholder="例: なし / 1本">
+          </div>
+          <div class="form-group">
+            <label for="target-allowance">狙い代</label>
+            <input type="number" step="any" id="target-allowance" placeholder="例: 10">
           </div>
           <div class="form-group">
             <label for="correction">補正</label>
@@ -399,21 +443,29 @@
             <label for="sigma-val">σ（標準偏差）</label>
             <input type="text" id="sigma-val" readonly placeholder="自動計算">
           </div>
+          <div class="form-group span-2">
+            <label for="remarks">備考</label>
+            <input type="text" id="remarks" placeholder="特記事項・連絡事項など">
+          </div>
         </div>
       </div>
 
       <!-- 複数本まとめて入力できる表 -->
       <div class="card">
-        <div class="section-title">ビレット測定表（複数本入力）</div>
+        <div class="section-title">
+          <span>ビレット測定表（複数本入力）</span>
+          <span class="section-note">予定寸法が空欄の行は直前の予定寸法を自動適用して計算</span>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th style="width: 48px;">No.</th>
+                <th style="width: 46px;">No.</th>
                 <th>ピットNo.</th>
                 <th>チャージNo.</th>
                 <th>圧延サイズ</th>
                 <th>刻印</th>
+                <th>メモ</th>
                 <th>予定寸法</th>
                 <th>実測寸法</th>
                 <th>実測寸法Wチェック</th>
@@ -462,7 +514,7 @@
     <div class="content">
       <div class="card">
         <div class="form-group" style="margin-bottom: 0;">
-          <label for="search-keyword">日付・材質・鋳型・クロップ区分・作業者・ピットNo.・チャージNo.・刻印で検索</label>
+          <label for="search-keyword">日付・材質・鋳型・クロップ区分・備考・作業者・ピットNo.・チャージNo.・刻印・メモで検索</label>
           <input type="text" id="search-keyword" placeholder="キーワードを入力..." oninput="renderSearch()">
         </div>
       </div>
@@ -475,7 +527,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'billet_length_records_v3';
+    const STORAGE_KEY = 'billet_length_records_v4';
 
     // 初期日付を今日に設定し、最初は10行用意
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -513,6 +565,7 @@
           <td><input type="text" class="charge-no" placeholder="チャージ"></td>
           <td><input type="text" class="rolling-size" placeholder="サイズ"></td>
           <td><input type="text" class="stamp-no" placeholder="刻印"></td>
+          <td><input type="text" class="row-memo" placeholder="メモ"></td>
           <td><input type="number" step="any" class="plan-len" oninput="recalcAll()"></td>
           <td><input type="number" step="any" class="actual-len" oninput="recalcAll()"></td>
           <td><input type="text" class="w-check" placeholder="Wチェック"></td>
@@ -543,12 +596,44 @@
       });
     }
 
+    // 予定寸法が未入力の行は直前の予定寸法を引き継いで計算する
+    function getEffectivePlanRows() {
+      const rows = Array.from(document.querySelectorAll('#billet-tbody tr'));
+      let lastPlan = NaN;
+
+      return rows.map(tr => {
+        const planInput = tr.querySelector('.plan-len');
+        const rawPlan = planInput.value.trim();
+        const parsedPlan = rawPlan !== '' ? parseFloat(rawPlan) : NaN;
+
+        let effectivePlan = NaN;
+        let isInherited = false;
+
+        if (!isNaN(parsedPlan)) {
+          effectivePlan = parsedPlan;
+          lastPlan = parsedPlan;
+        } else if (!isNaN(lastPlan)) {
+          effectivePlan = lastPlan;
+          isInherited = true;
+        }
+
+        planInput.classList.toggle('inherited-plan', isInherited);
+        planInput.placeholder = (!isNaN(lastPlan) && rawPlan === '') ? String(lastPlan) : '';
+
+        return {
+          tr,
+          rawPlan,
+          effectivePlan,
+          isInherited
+        };
+      });
+    }
+
     function recalcAll() {
-      const rows = document.querySelectorAll('#billet-tbody tr');
+      const rowInfoList = getEffectivePlanRows();
       const actuals = [];
 
-      rows.forEach(tr => {
-        const planVal = parseFloat(tr.querySelector('.plan-len').value);
+      rowInfoList.forEach(({ tr, effectivePlan }) => {
         const actualVal = parseFloat(tr.querySelector('.actual-len').value);
         const diffCell = tr.querySelector('.diff-cell');
 
@@ -558,8 +643,8 @@
           actuals.push(actualVal);
         }
 
-        if (!isNaN(planVal) && !isNaN(actualVal)) {
-          const diff = actualVal - planVal;
+        if (!isNaN(effectivePlan) && !isNaN(actualVal)) {
+          const diff = actualVal - effectivePlan;
           const rounded = Math.round(diff * 1000) / 1000;
           diffCell.textContent = (rounded > 0 ? '+' : '') + rounded;
           if (rounded > 0) diffCell.classList.add('diff-plus');
@@ -588,26 +673,29 @@
     }
 
     function collectRowsData() {
-      const rows = document.querySelectorAll('#billet-tbody tr');
+      const rowInfoList = getEffectivePlanRows();
       const items = [];
 
-      rows.forEach(tr => {
+      rowInfoList.forEach(({ tr, rawPlan, effectivePlan }) => {
         const pitNo = tr.querySelector('.pit-no').value.trim();
         const chargeNo = tr.querySelector('.charge-no').value.trim();
         const rollingSize = tr.querySelector('.rolling-size').value.trim();
         const stampNo = tr.querySelector('.stamp-no').value.trim();
-        const planLen = tr.querySelector('.plan-len').value.trim();
+        const rowMemo = tr.querySelector('.row-memo').value.trim();
         const actualLen = tr.querySelector('.actual-len').value.trim();
         const wCheck = tr.querySelector('.w-check').value.trim();
         const diffText = tr.querySelector('.diff-cell').textContent;
 
-        if (pitNo || chargeNo || rollingSize || stampNo || planLen || actualLen || wCheck) {
+        const savedPlanLen = rawPlan !== '' ? rawPlan : (!isNaN(effectivePlan) ? String(effectivePlan) : '');
+
+        if (pitNo || chargeNo || rollingSize || stampNo || rowMemo || savedPlanLen || actualLen || wCheck) {
           items.push({
             pitNo,
             chargeNo,
             rollingSize,
             stampNo,
-            planLen,
+            rowMemo,
+            planLen: savedPlanLen,
             actualLen,
             wCheck,
             diff: diffText
@@ -634,6 +722,7 @@
         cropType: document.getElementById('crop-type').value.trim(),
         tolerance: document.getElementById('tolerance').value.trim(),
         outOfTolerance: document.getElementById('out-of-tolerance').value.trim(),
+        targetAllowance: document.getElementById('target-allowance').value.trim(),
         correction: document.getElementById('correction').value.trim(),
         startTime: document.getElementById('start-time').value,
         endTime: document.getElementById('end-time').value,
@@ -642,6 +731,7 @@
         worker2: document.getElementById('worker2').value.trim(),
         meanX: document.getElementById('mean-x').value,
         sigma: document.getElementById('sigma-val').value,
+        remarks: document.getElementById('remarks').value.trim(),
         items
       };
 
@@ -649,7 +739,8 @@
       records.unshift(record);
       setRecords(records);
 
-      // 表をリセット
+      // 表と備考をリセット
+      document.getElementById('remarks').value = '';
       document.getElementById('billet-tbody').innerHTML = '';
       addBilletRow(10);
 
@@ -672,6 +763,7 @@
           <td>${it.chargeNo || '-'}</td>
           <td>${it.rollingSize || '-'}</td>
           <td>${it.stampNo || '-'}</td>
+          <td>${it.rowMemo || '-'}</td>
           <td>${it.planLen || '-'}</td>
           <td>${it.actualLen || '-'}</td>
           <td>${it.wCheck || '-'}</td>
@@ -689,12 +781,14 @@
             <strong>クロップ区分:</strong> ${rec.cropType || '-'}<br>
             <strong>交差:</strong> ${rec.tolerance || '-'} ／
             <strong>交差外れ:</strong> ${rec.outOfTolerance || '-'} ／
+            <strong>狙い代:</strong> ${rec.targetAllowance || '-'} ／
             <strong>補正:</strong> ${rec.correction || '-'} ／
             <strong>時間:</strong> ${rec.startTime || '-'} 〜 ${rec.endTime || '-'} ／
             <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'}<br>
             <strong>作業者:</strong> ${rec.worker1 || '-'}、${rec.worker2 || '-'} ／
             <strong>平均値(x̄):</strong> ${rec.meanX || '-'} ／
-            <strong>σ:</strong> ${rec.sigma || '-'}
+            <strong>σ:</strong> ${rec.sigma || '-'}<br>
+            <strong>備考:</strong> ${rec.remarks || '-'}
           </div>
           <div class="table-wrap">
             <table>
@@ -705,6 +799,7 @@
                   <th>チャージNo.</th>
                   <th>圧延サイズ</th>
                   <th>刻印</th>
+                  <th>メモ</th>
                   <th>予定寸法</th>
                   <th>実測寸法</th>
                   <th>実測寸法Wチェック</th>
@@ -743,12 +838,12 @@
       const filtered = records.filter(rec => {
         const metaText = [
           rec.rollingDate, rec.measureDate, rec.material, rec.mold, rec.cropType,
-          rec.tolerance, rec.outOfTolerance, rec.correction,
-          rec.startTime, rec.endTime, rec.measureTemp, rec.worker1, rec.worker2
+          rec.tolerance, rec.outOfTolerance, rec.targetAllowance, rec.correction,
+          rec.startTime, rec.endTime, rec.measureTemp, rec.worker1, rec.worker2, rec.remarks
         ].join(' ').toLowerCase();
 
         const itemText = (rec.items || []).map(it =>
-          [it.pitNo, it.chargeNo, it.rollingSize, it.stampNo, it.planLen, it.actualLen, it.wCheck].join(' ')
+          [it.pitNo, it.chargeNo, it.rollingSize, it.stampNo, it.rowMemo, it.planLen, it.actualLen, it.wCheck].join(' ')
         ).join(' ').toLowerCase();
 
         return !kw || metaText.includes(kw) || itemText.includes(kw);
