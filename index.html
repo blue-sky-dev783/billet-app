@@ -1,806 +1,467 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ビレット寸法測定・管理アプリ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ビレット長さ管理</title>
   <style>
-    :root {
-      --bg-color: #f1f5f9;
-      --card-bg: #ffffff;
-      --border-color: #cbd5e1;
-      --primary: #1e40af;
-      --primary-hover: #1d4ed8;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --danger-bg: #fee2e2;
-      --danger-text: #b91c1c;
-      --danger-border: #f87171;
-      --success-bg: #dcfce7;
-      --success-text: #15803d;
-      --success-border: #4ade80;
-    }
-
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      line-height: 1.4;
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      background-color: #f4f6f8;
+      color: #333333;
+      min-height: 100vh;
     }
 
-    .container {
-      max-width: 1280px;
+    /* 画面切り替え制御 */
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* ===== 表紙画面 ===== */
+    #cover-screen.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)),
+                        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 1rem;
+    }
+
+    .cover-container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 2.8rem 2rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .cover-container h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .cover-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 2.2rem;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .cover-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .cover-btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-new {
+      background-color: #2e8b57;
+    }
+    .btn-history {
+      background-color: #4682b4;
+    }
+    .btn-search {
+      background-color: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* ===== サブ画面共通ヘッダー・レイアウト ===== */
+    .app-header {
+      background-color: #2c3e50;
+      color: #ffffff;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .app-header h2 {
+      font-size: 1.1rem;
+      text-align: center;
+      flex: 1;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: none;
+      padding: 0.45rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 1rem;
+      max-width: 720px;
       margin: 0 auto;
     }
 
-    /* ヘッダー */
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      background: #0f172a;
-      color: #fff;
-      padding: 14px 20px;
+    .card {
+      background: #ffffff;
       border-radius: 10px;
-      margin-bottom: 16px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      margin-bottom: 1rem;
     }
 
-    .header h1 {
-      margin: 0;
-      font-size: 1.25rem;
-      letter-spacing: 0.02em;
+    .form-group {
+      margin-bottom: 0.9rem;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      cursor: pointer;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 0.875rem;
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
       font-weight: 600;
-      transition: all 0.15s ease;
+      margin-bottom: 0.3rem;
+      color: #555;
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #1e293b;
-      border-color: #cbd5e1;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-
-    .btn-danger {
-      background: #fff;
-      color: var(--danger-text);
-      border-color: var(--danger-border);
-    }
-    .btn-danger:hover {
-      background: var(--danger-bg);
-    }
-
-    /* 上部条件・サマリーパネル */
-    .meta-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .field-group label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .field-group input,
-    .field-group select,
-    .field-group textarea {
+    .form-group input,
+    .form-group select {
       width: 100%;
-      padding: 8px 10px;
-      font-size: 0.95rem;
-      border: 1px solid var(--border-color);
+      padding: 0.65rem;
+      border: 1px solid #ccc;
       border-radius: 6px;
-      background: #fff;
-      color: var(--text-main);
+      font-size: 1rem;
     }
 
-    .field-group input:focus,
-    .field-group select:focus,
-    .field-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
-    }
-
-    .input-with-unit {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .input-with-unit span {
-      font-weight: 700;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    /* 自動集計ボックス（公差外れ・n数） */
-    .stat-box {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background: #f8fafc;
-      font-size: 1.15rem;
-      font-weight: 800;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 39px;
-    }
-
-    .stat-box.alert {
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      border-color: var(--danger-border);
-    }
-
-    .stat-box.ok {
-      background: var(--success-bg);
-      color: var(--success-text);
-      border-color: var(--success-border);
-    }
-
-    .remarks-row {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .remarks-row label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .remarks-row input {
+    .submit-btn {
       width: 100%;
-      padding: 8px 10px;
-      font-size: 0.95rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
+      padding: 0.85rem;
+      background-color: #2e8b57;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
     }
 
-    /* テーブルエリア */
-    .table-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .table-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: #f8fafc;
-      border-bottom: 1px solid var(--border-color);
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .table-toolbar-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-    }
-
+    /* テーブル */
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 920px;
+      font-size: 13px;
+      background: #ffffff;
     }
 
     th, td {
-      border-bottom: 1px solid var(--border-color);
-      border-right: 1px solid #e2e8f0;
-      padding: 8px 10px;
+      border: 1px solid #ddd;
+      padding: 8px 6px;
       text-align: center;
-      vertical-align: middle;
     }
 
     th {
-      background: #e2e8f0;
-      color: #1e293b;
-      font-size: 0.85rem;
-      font-weight: 700;
-      white-space: nowrap;
+      background-color: #eef2f5;
+      font-weight: 600;
     }
 
-    tr:hover td {
-      background-color: #f8fafc;
-    }
-
-    tr.row-ng td {
-      background-color: #fef2f2;
-    }
-
-    td input[type="number"],
-    td input[type="text"] {
-      width: 100%;
-      min-width: 85px;
-      padding: 6px 8px;
-      font-size: 0.95rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 5px;
-      text-align: right;
-    }
-
-    td input.input-ng {
-      border-color: var(--danger-border);
-      background-color: var(--danger-bg);
-      color: var(--danger-text);
-      font-weight: 700;
-    }
-
-    .calc-cell {
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      color: #334155;
-      white-space: nowrap;
-    }
-
-    /* 実測寸法Wチェック列 */
-    .w-check-cell {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      justify-content: center;
-    }
-
-    .w-check-cell input {
-      width: 90px;
-    }
-
-    .w-check-btn {
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      border-radius: 5px;
-      border: 1px solid #94a3b8;
-      background: #f1f5f9;
-      color: #334155;
-      white-space: nowrap;
-    }
-
-    .w-check-btn.checked {
-      background: var(--success-bg);
-      border-color: var(--success-border);
-      color: var(--success-text);
-    }
-
-    .w-mismatch {
-      border-color: #f59e0b !important;
-      background-color: #fef3c7 !important;
-    }
-
-    /* 判定バッジ */
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .badge-ok {
-      background: var(--success-bg);
-      color: var(--success-text);
-    }
-
-    .badge-ng {
-      background: var(--danger-bg);
-      color: var(--danger-text);
-    }
-
-    .badge-none {
-      background: #e2e8f0;
-      color: #64748b;
-    }
-
-    .btn-del-row {
+    .del-btn {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
       padding: 4px 8px;
-      font-size: 0.8rem;
-      background: transparent;
-      color: #64748b;
-      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
     }
 
-    .btn-del-row:hover {
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      border-color: var(--danger-border);
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 10px;
-      }
-      .header h1 {
-        font-size: 1.05rem;
-      }
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      padding: 2rem 0;
+      font-size: 0.95rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- ヘッダー -->
-    <header class="header">
-      <h1>ビレット寸法測定・管理アプリ</h1>
-      <div class="header-actions">
-        <button type="button" class="btn-secondary" id="btnExportCsv">CSV出力</button>
-        <button type="button" class="btn-danger" id="btnResetAll">全クリア</button>
+
+  <!-- 1. 表紙画面 -->
+  <div id="cover-screen" class="screen active">
+    <div class="cover-container">
+      <h1>ビレット長さ管理</h1>
+      <p class="cover-subtitle">Billet Length Management</p>
+
+      <div class="button-group">
+        <button class="cover-btn btn-new" onclick="showScreen('new-screen')">
+          <span>＋</span> 新規データ
+        </button>
+        <button class="cover-btn btn-history" onclick="showScreen('history-screen')">
+          <span>📁</span> 過去データ
+        </button>
+        <button class="cover-btn btn-search" onclick="showScreen('search-screen')">
+          <span>🔍</span> 検索
+        </button>
       </div>
-    </header>
+    </div>
+  </div>
 
-    <!-- 上部：測定条件・サマリーエリア -->
-    <section class="meta-panel" aria-label="測定条件および集計">
-      <div class="meta-grid">
-        <div class="field-group">
-          <label for="mold">鋳型</label>
-          <input type="text" id="mold" list="moldOptions" placeholder="例: 150角 / A-1" />
-          <datalist id="moldOptions">
-            <option value="120角"></option>
-            <option value="130角"></option>
-            <option value="150角"></option>
-            <option value="160角"></option>
-            <option value="180角"></option>
-            <option value="200角"></option>
-          </datalist>
-        </div>
+  <!-- 2. 新規データ入力画面 -->
+  <div id="new-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>新規データ登録</h2>
+      <div style="width: 60px;"></div>
+    </div>
 
-        <div class="field-group">
-          <label for="cropCategory">クロップ区分</label>
-          <select id="cropCategory">
-            <option value="">選択してください</option>
-            <option value="トップ (T)">トップ (T)</option>
-            <option value="ミドル (M)">ミドル (M)</option>
-            <option value="ボトム (B)">ボトム (B)</option>
-            <option value="定常部">定常部</option>
-            <option value="その他">その他</option>
-          </select>
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label for="input-date">日付</label>
+          <input type="date" id="input-date">
         </div>
-
-        <div class="field-group">
-          <label for="tolerance">公差（交差）</label>
-          <div class="input-with-unit">
-            <span>±</span>
-            <input type="number" id="tolerance" step="0.1" min="0" value="5.0" />
-            <span>mm</span>
-          </div>
+        <div class="form-group">
+          <label for="input-lot">ロットNo. / 品番</label>
+          <input type="text" id="input-lot" placeholder="例: B-2026-01">
         </div>
-
-        <div class="field-group">
-          <label>公差外れ（交差外れ）</label>
-          <div id="outOfToleranceCount" class="stat-box ok">0 本</div>
+        <div class="form-group">
+          <label for="input-length">ビレット長さ (mm)</label>
+          <input type="number" id="input-length" placeholder="例: 1250">
         </div>
-
-        <div class="field-group">
-          <label>n数（測定本数）</label>
-          <div id="sampleCount" class="stat-box">0 本</div>
+        <div class="form-group">
+          <label for="input-count">本数</label>
+          <input type="number" id="input-count" placeholder="例: 10">
         </div>
+        <div class="form-group">
+          <label for="input-memo">備考</label>
+          <input type="text" id="input-memo" placeholder="メモがあれば入力">
+        </div>
+        <button class="submit-btn" onclick="saveData()">保存する</button>
       </div>
+    </div>
+  </div>
 
-      <div class="remarks-row">
-        <label for="remarks">備考欄</label>
-        <input type="text" id="remarks" placeholder="設備状況・特記事項などを入力" />
-      </div>
-    </section>
+  <!-- 3. 過去データ一覧画面 -->
+  <div id="history-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>過去データ一覧</h2>
+      <div style="width: 60px;"></div>
+    </div>
 
-    <!-- 下部：測定データ一覧テーブル -->
-    <section class="table-card" aria-label="測定データ一覧">
-      <div class="table-toolbar">
-        <span class="table-toolbar-title">測定データ一覧（単位: mm）</span>
-        <div>
-          <button type="button" class="btn-primary" id="btnAddRow">＋ 行を追加</button>
-        </div>
-      </div>
-
-      <div class="table-wrapper">
-        <table id="measurementTable">
+    <div class="content">
+      <div class="card" style="overflow-x: auto;">
+        <table>
           <thead>
             <tr>
-              <th style="width: 55px;">No.</th>
-              <th>圧延サイズ</th>
-              <th>付加余長</th>
-              <th>基準寸法<br><small>(圧延+余長)</small></th>
-              <th>実測寸法</th>
-              <th>実測寸法Wチェック</th>
-              <th>差<br><small>(実測-基準)</small></th>
-              <th>判定</th>
-              <th style="width: 65px;">操作</th>
+              <th>日付</th>
+              <th>ロットNo.</th>
+              <th>長さ(mm)</th>
+              <th>本数</th>
+              <th>備考</th>
+              <th>操作</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
-            <!-- JSで行を動的生成 -->
-          </tbody>
+          <tbody id="history-tbody"></tbody>
         </table>
+        <p id="history-empty" class="empty-msg">登録されたデータはありません。</p>
       </div>
-    </section>
+    </div>
+  </div>
+
+  <!-- 4. 検索画面 -->
+  <div id="search-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>データ検索</h2>
+      <div style="width: 60px;"></div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="search-keyword">日付・ロットNo.・長さ・備考で検索</label>
+          <input type="text" id="search-keyword" placeholder="キーワードを入力..." oninput="renderSearch()">
+        </div>
+      </div>
+
+      <div class="card" style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>ロットNo.</th>
+              <th>長さ(mm)</th>
+              <th>本数</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody id="search-tbody"></tbody>
+        </table>
+        <p id="search-empty" class="empty-msg">該当するデータはありません。</p>
+      </div>
+    </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'billet_app_data_v2';
+    const STORAGE_KEY = 'billet_app_records';
 
-    const state = {
-      mold: '',
-      cropCategory: '',
-      tolerance: 5.0,
-      remarks: '',
-      rows: []
-    };
+    // 初期日付を今日に設定
+    document.getElementById('input-date').valueAsDate = new Date();
 
-    const elMold = document.getElementById('mold');
-    const elCropCategory = document.getElementById('cropCategory');
-    const elTolerance = document.getElementById('tolerance');
-    const elRemarks = document.getElementById('remarks');
-    const elOutOfTolerance = document.getElementById('outOfToleranceCount');
-    const elSampleCount = document.getElementById('sampleCount');
-    const elTableBody = document.getElementById('tableBody');
-
-    function createDefaultRow(rollingSize = '', extraLength = '') {
-      return {
-        id: Date.now() + Math.random(),
-        rollingSize,
-        extraLength,
-        actualDim: '',
-        wCheckDim: '',
-        wChecked: false
-      };
+    function getRecords() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
     }
 
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          state.mold = parsed.mold ?? '';
-          state.cropCategory = parsed.cropCategory ?? '';
-          state.tolerance = parsed.tolerance !== undefined ? parsed.tolerance : 5.0;
-          state.remarks = parsed.remarks ?? '';
-          state.rows = Array.isArray(parsed.rows) && parsed.rows.length > 0
-            ? parsed.rows
-            : Array.from({ length: 5 }, () => createDefaultRow());
-        } else {
-          state.rows = Array.from({ length: 5 }, () => createDefaultRow());
-        }
-      } catch (e) {
-        state.rows = Array.from({ length: 5 }, () => createDefaultRow());
+    function setRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      if (screenId === 'history-screen') {
+        renderHistory();
+      } else if (screenId === 'search-screen') {
+        renderSearch();
       }
     }
 
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        console.warn('保存に失敗しました:', e);
-      }
-    }
+    function saveData() {
+      const date = document.getElementById('input-date').value;
+      const lot = document.getElementById('input-lot').value.trim();
+      const length = document.getElementById('input-length').value.trim();
+      const count = document.getElementById('input-count').value.trim();
+      const memo = document.getElementById('input-memo').value.trim();
 
-    function evaluateRow(row, tolerance) {
-      const rSize = parseFloat(row.rollingSize);
-      const eLen = parseFloat(row.extraLength);
-      const actual = parseFloat(row.actualDim);
-
-      const hasBase = !isNaN(rSize) || !isNaN(eLen);
-      const baseDim = hasBase ? (isNaN(rSize) ? 0 : rSize) + (isNaN(eLen) ? 0 : eLen) : null;
-
-      const hasActual = !isNaN(actual);
-      let diff = null;
-      let status = 'none'; // 'ok' | 'ng' | 'none'
-
-      if (baseDim !== null && hasActual) {
-        diff = Number((actual - baseDim).toFixed(2));
-        if (!isNaN(tolerance)) {
-          status = Math.abs(diff) <= tolerance ? 'ok' : 'ng';
-        }
+      if (!date || !lot || !length) {
+        alert('日付・ロットNo.・ビレット長さは必須です。');
+        return;
       }
 
-      return { baseDim, hasActual, diff, status };
-    }
-
-    function updateSummary() {
-      const tol = parseFloat(state.tolerance);
-      let nCount = 0;
-      let ngCount = 0;
-
-      state.rows.forEach((row) => {
-        const { hasActual, status } = evaluateRow(row, tol);
-        if (hasActual) nCount++;
-        if (status === 'ng') ngCount++;
+      const records = getRecords();
+      records.unshift({
+        id: Date.now(),
+        date,
+        lot,
+        length,
+        count: count || '-',
+        memo: memo || ''
       });
+      setRecords(records);
 
-      elSampleCount.textContent = `${nCount} 本`;
-      elOutOfTolerance.textContent = `${ngCount} 本`;
+      // 入力欄クリア
+      document.getElementById('input-lot').value = '';
+      document.getElementById('input-length').value = '';
+      document.getElementById('input-count').value = '';
+      document.getElementById('input-memo').value = '';
 
-      if (ngCount > 0) {
-        elOutOfTolerance.classList.remove('ok');
-        elOutOfTolerance.classList.add('alert');
-      } else {
-        elOutOfTolerance.classList.remove('alert');
-        elOutOfTolerance.classList.add('ok');
-      }
+      alert('保存しました！');
+      showScreen('history-screen');
     }
 
-    function renderTable() {
-      const tol = parseFloat(state.tolerance);
-      elTableBody.innerHTML = '';
+    function deleteRecord(id) {
+      if (!confirm('このデータを削除しますか？')) return;
+      const records = getRecords().filter(item => item.id !== id);
+      setRecords(records);
+      renderHistory();
+    }
 
-      state.rows.forEach((row, index) => {
-        const { baseDim, diff, status } = evaluateRow(row, tol);
+    function renderHistory() {
+      const records = getRecords();
+      const tbody = document.getElementById('history-tbody');
+      const emptyMsg = document.getElementById('history-empty');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      records.forEach(item => {
         const tr = document.createElement('tr');
-        if (status === 'ng') tr.classList.add('row-ng');
-
-        const wVal = parseFloat(row.wCheckDim);
-        const aVal = parseFloat(row.actualDim);
-        const isWMismatch = !isNaN(wVal) && !isNaN(aVal) && wVal !== aVal;
-
-        const diffText = diff === null ? '-' : (diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1));
-        let badgeHtml = '<span class="badge badge-none">未判定</span>';
-        if (status === 'ok') badgeHtml = '<span class="badge badge-ok">合格</span>';
-        if (status === 'ng') badgeHtml = '<span class="badge badge-ng">公差外れ</span>';
-
         tr.innerHTML = `
-          <td><strong>${index + 1}</strong></td>
-          <td>
-            <input type="number" step="0.1" data-field="rollingSize" data-idx="${index}"
-              value="${row.rollingSize}" placeholder="圧延サイズ" />
-          </td>
-          <td>
-            <input type="number" step="0.1" data-field="extraLength" data-idx="${index}"
-              value="${row.extraLength}" placeholder="付加余長" />
-          </td>
-          <td class="calc-cell">${baseDim !== null ? baseDim.toFixed(1) : '-'}</td>
-          <td>
-            <input type="number" step="0.1" data-field="actualDim" data-idx="${index}"
-              class="${status === 'ng' ? 'input-ng' : ''}"
-              value="${row.actualDim}" placeholder="実測寸法" />
-          </td>
-          <td>
-            <div class="w-check-cell">
-              <input type="number" step="0.1" data-field="wCheckDim" data-idx="${index}"
-                class="${isWMismatch ? 'w-mismatch' : ''}"
-                value="${row.wCheckDim}" placeholder="W確認値" />
-              <button type="button" class="w-check-btn ${row.wChecked ? 'checked' : ''}"
-                data-action="toggleWCheck" data-idx="${index}">
-                ${row.wChecked ? '✔ W済' : '確認'}
-              </button>
-            </div>
-          </td>
-          <td class="calc-cell">${diffText}</td>
-          <td>${badgeHtml}</td>
-          <td>
-            <button type="button" class="btn-del-row" data-action="deleteRow" data-idx="${index}" title="行を削除">削除</button>
-          </td>
+          <td>${item.date}</td>
+          <td>${item.lot}</td>
+          <td>${item.length}</td>
+          <td>${item.count}</td>
+          <td>${item.memo}</td>
+          <td><button class="del-btn" onclick="deleteRecord(${item.id})">削除</button></td>
         `;
-
-        elTableBody.appendChild(tr);
+        tbody.appendChild(tr);
       });
-
-      updateSummary();
     }
 
-    function syncInputsFromState() {
-      elMold.value = state.mold;
-      elCropCategory.value = state.cropCategory;
-      elTolerance.value = state.tolerance;
-      elRemarks.value = state.remarks;
+    function renderSearch() {
+      const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+      const records = getRecords();
+      const tbody = document.getElementById('search-tbody');
+      const emptyMsg = document.getElementById('search-empty');
+      tbody.innerHTML = '';
+
+      const filtered = records.filter(item =>
+        item.date.toLowerCase().includes(keyword) ||
+        item.lot.toLowerCase().includes(keyword) ||
+        String(item.length).includes(keyword) ||
+        item.memo.toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.date}</td>
+          <td>${item.lot}</td>
+          <td>${item.length}</td>
+          <td>${item.count}</td>
+          <td>${item.memo}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
-
-    // 上部フィールドのイベント
-    elMold.addEventListener('input', (e) => {
-      state.mold = e.target.value;
-      saveState();
-    });
-
-    elCropCategory.addEventListener('change', (e) => {
-      state.cropCategory = e.target.value;
-      saveState();
-    });
-
-    elTolerance.addEventListener('input', (e) => {
-      state.tolerance = e.target.value;
-      saveState();
-      renderTable();
-    });
-
-    elRemarks.addEventListener('input', (e) => {
-      state.remarks = e.target.value;
-      saveState();
-    });
-
-    // テーブル内入力のイベント（フォーカスを維持するためDOM部分更新と再描画を制御）
-    elTableBody.addEventListener('input', (e) => {
-      const idx = Number(e.target.dataset.idx);
-      const field = e.target.dataset.field;
-      if (isNaN(idx) || !field) return;
-
-      state.rows[idx][field] = e.target.value;
-      saveState();
-
-      // 現在の行のみ計算セルを更新して入力カーソルを保持
-      const tr = e.target.closest('tr');
-      const tol = parseFloat(state.tolerance);
-      const { baseDim, diff, status } = evaluateRow(state.rows[idx], tol);
-
-      tr.classList.toggle('row-ng', status === 'ng');
-      tr.children[3].textContent = baseDim !== null ? baseDim.toFixed(1) : '-';
-
-      const actualInput = tr.querySelector('input[data-field="actualDim"]');
-      actualInput.classList.toggle('input-ng', status === 'ng');
-
-      const wInput = tr.querySelector('input[data-field="wCheckDim"]');
-      const wVal = parseFloat(state.rows[idx].wCheckDim);
-      const aVal = parseFloat(state.rows[idx].actualDim);
-      wInput.classList.toggle('w-mismatch', !isNaN(wVal) && !isNaN(aVal) && wVal !== aVal);
-
-      tr.children[6].textContent = diff === null ? '-' : (diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1));
-      if (status === 'ok') {
-        tr.children[7].innerHTML = '<span class="badge badge-ok">合格</span>';
-      } else if (status === 'ng') {
-        tr.children[7].innerHTML = '<span class="badge badge-ng">公差外れ</span>';
-      } else {
-        tr.children[7].innerHTML = '<span class="badge badge-none">未判定</span>';
-      }
-
-      updateSummary();
-    });
-
-    // テーブル内ボタン操作
-    elTableBody.addEventListener('click', (e) => {
-      const btn = e.target.closest('button');
-      if (!btn) return;
-      const idx = Number(btn.dataset.idx);
-      const action = btn.dataset.action;
-
-      if (action === 'toggleWCheck') {
-        const row = state.rows[idx];
-        row.wChecked = !row.wChecked;
-        // Wチェック済みにした際、W確認値が空なら実測寸法を自動コピー
-        if (row.wChecked && row.wCheckDim === '' && row.actualDim !== '') {
-          row.wCheckDim = row.actualDim;
-        }
-        saveState();
-        renderTable();
-      } else if (action === 'deleteRow') {
-        if (state.rows.length <= 1) {
-          state.rows[0] = createDefaultRow();
-        } else {
-          state.rows.splice(idx, 1);
-        }
-        saveState();
-        renderTable();
-      }
-    });
-
-    // 行追加（直前の行の圧延サイズ・付加余長を引き継ぐ）
-    document.getElementById('btnAddRow').addEventListener('click', () => {
-      const lastRow = state.rows[state.rows.length - 1];
-      const newRow = lastRow
-        ? createDefaultRow(lastRow.rollingSize, lastRow.extraLength)
-        : createDefaultRow();
-      state.rows.push(newRow);
-      saveState();
-      renderTable();
-    });
-
-    // 全クリア
-    document.getElementById('btnResetAll').addEventListener('click', () => {
-      if (!confirm('入力データをすべてクリアしますか？')) return;
-      state.mold = '';
-      state.cropCategory = '';
-      state.tolerance = 5.0;
-      state.remarks = '';
-      state.rows = Array.from({ length: 5 }, () => createDefaultRow());
-      saveState();
-      syncInputsFromState();
-      renderTable();
-    });
-
-    // CSV出力
-    document.getElementById('btnExportCsv').addEventListener('click', () => {
-      const tol = parseFloat(state.tolerance);
-      let nCount = 0;
-      let ngCount = 0;
-      state.rows.forEach((r) => {
-        const ev = evaluateRow(r, tol);
-        if (ev.hasActual) nCount++;
-        if (ev.status === 'ng') ngCount++;
-      });
-
-      const lines = [
-        ['鋳型', state.mold, 'クロップ区分', state.cropCategory, '公差(±mm)', state.tolerance, '公差外れ(本)', ngCount, 'n数(本)', nCount],
-        ['備考欄', state.remarks],
-        [],
-        ['No.', '圧延サイズ', '付加余長', '基準寸法', '実測寸法', '実測寸法Wチェック', 'W確認状態', '差', '判定']
-      ];
-
-      state.rows.forEach((r, i) => {
-        const { baseDim, diff, status } = evaluateRow(r, tol);
-        const judge = status === 'ok' ? '合格' : status === 'ng' ? '公差外れ' : '未判定';
-        lines.push([
-          i + 1,
-          r.rollingSize,
-          r.extraLength,
-          baseDim !== null ? baseDim.toFixed(1) : '',
-          r.actualDim,
-          r.wCheckDim,
-          r.wChecked ? 'W済' : '未確認',
-          diff !== null ? diff.toFixed(1) : '',
-          judge
-        ]);
-      });
-
-      const csvContent = '\uFEFF' + lines.map((cols) =>
-        cols.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
-      ).join('\r\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `billet_measurement_${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // 初期化
-    loadState();
-    syncInputsFromState();
-    renderTable();
   </script>
 </body>
 </html>
