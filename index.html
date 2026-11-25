@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Billet App - 表紙</title>
+  <title>ビレット長さ管理</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,44 +13,59 @@
 
     body {
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      color: #ffffff;
-      height: 100vh;
+      background-color: #f4f6f8;
+      color: #333333;
+      min-height: 100vh;
+    }
+
+    /* 画面切り替え制御 */
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* ===== 表紙画面 ===== */
+    #cover-screen.active {
       display: flex;
       justify-content: center;
       align-items: center;
-      /* 穏やかな自然の風景画像（Unsplash） */
+      color: #ffffff;
       background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)),
                         url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      padding: 1rem;
     }
 
     .cover-container {
       text-align: center;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.16);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      padding: 3rem 2.5rem;
+      padding: 2.8rem 2rem;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-      max-width: 480px;
-      width: 90%;
+      max-width: 440px;
+      width: 100%;
     }
 
-    h1 {
-      font-size: 2.5rem;
+    .cover-container h1 {
+      font-size: 2rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    .subtitle {
-      font-size: 1rem;
+    .cover-subtitle {
+      font-size: 0.95rem;
       opacity: 0.9;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2.2rem;
     }
 
     .button-group {
@@ -59,7 +74,7 @@
       gap: 1rem;
     }
 
-    .btn {
+    .cover-btn {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -69,299 +84,384 @@
       font-size: 1.1rem;
       font-weight: 600;
       color: #ffffff;
-      text-decoration: none;
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease, background-color 0.2s ease;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    .cover-btn:active {
+      transform: scale(0.98);
     }
 
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    /* 各ボタンのカラー設定 */
     .btn-new {
-      background-color: #2e8b57; /* 落ち着いたグリーン */
+      background-color: #2e8b57;
     }
-    .btn-new:hover {
-      background-color: #267347;
-    }
-
     .btn-history {
-      background-color: #4682b4; /* 穏やかなブルー */
+      background-color: #4682b4;
     }
-    .btn-history:hover {
-      background-color: #3a6d96;
-    }
-
     .btn-search {
       background-color: rgba(255, 255, 255, 0.25);
       border: 1px solid rgba(255, 255, 255, 0.5);
     }
-    .btn-search:hover {
-      background-color: rgba(255, 255, 255, 0.35);
+
+    /* ===== サブ画面共通ヘッダー・レイアウト ===== */
+    .app-header {
+      background-color: #2c3e50;
+      color: #ffffff;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .app-header h2 {
+      font-size: 1.1rem;
+      text-align: center;
+      flex: 1;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: none;
+      padding: 0.45rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 1rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background-color: #2e8b57;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    /* テーブル */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #ffffff;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #eef2f5;
+      font-weight: 600;
+    }
+
+    .del-btn {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      padding: 2rem 0;
+      font-size: 0.95rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="cover-container">
-    <h1>Billet App</h1>
-    <p class="subtitle">データ管理システム</p>
+  <!-- 1. 表紙画面 -->
+  <div id="cover-screen" class="screen active">
+    <div class="cover-container">
+      <h1>ビレット長さ管理</h1>
+      <p class="cover-subtitle">Billet Length Management</p>
 
-    <div class="button-group">
-      <!-- 遷移先（href）は実際のファイル名やパスに合わせて変更してください -->
-      <a href="new.html" class="btn btn-new">
-        <span>＋</span> 新規データ
-      </a>
-      <a href="history.html" class="btn btn-history">
-        <span>📁</span> 過去データ
-      </a>
-      <a href="search.html" class="btn btn-search">
-        <span>🔍</span> 検索
-      </a>
+      <div class="button-group">
+        <button class="cover-btn btn-new" onclick="showScreen('new-screen')">
+          <span>＋</span> 新規データ
+        </button>
+        <button class="cover-btn btn-history" onclick="showScreen('history-screen')">
+          <span>📁</span> 過去データ
+        </button>
+        <button class="cover-btn btn-search" onclick="showScreen('search-screen')">
+          <span>🔍</span> 検索
+        </button>
+      </div>
     </div>
   </div>
 
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ビレット長さ管理</title>
-
-<style>
-body{
-    font-family:sans-serif;
-    margin:10px;
-}
-h2{
-    text-align:center;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:12px;
-}
-th,td{
-    border:1px solid #ccc;
-    padding:4px;
-}
-input{
-    width:100%;
-    box-sizing:border-box;
-}
-.good{
-    background:#c8f7c5;
-}
-.bad{
-    background:#ffcfcf;
-}
-button{
-    padding:10px;
-    margin:5px;
-}
-.summary{
-    margin-top:20px;
-    font-size:16px;
-    font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-
-<h2>金属ビレット全長管理表</h2>
-
-<button onclick="addRow()">行追加</button>
-<button onclick="saveData()">保存</button>
-
-<table>
-<thead>
-<tr>
-<th>ピットNo</th>
-<th>チャージNo</th>
-<th>刻印</th>
-<th>付加余長</th>
-<th>予定寸法</th>
-<th>実寸法</th>
-<th>差</th>
-<th>判定</th>
-<th>圧延日</th>
-<th>測定日</th>
-<th>材質</th>
-<th>補正</th>
-<th>作業者名</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
-<div class="summary">
-平均差：<span id="avg">0</span> mm<br>
-σ（標準偏差）：<span id="sigma">0</span> mm
-</div>
-
-<script>
-
-function addRow(){
-
-let tr=document.createElement("tr");
-
-for(let i=0;i<13;i++){
-
-let td=document.createElement("td");
-let input=document.createElement("input");
-
-if(i===4 || i===5){
-input.type="number";
-input.oninput=calc;
-}
-
-if(i===8 || i===9){
-input.type="date";
-}
-
-td.appendChild(input);
-tr.appendChild(td);
-}
-
-document.getElementById("tbody").appendChild(tr);
-
-}
-
-function calc(){
-
-let rows=document.querySelectorAll("#tbody tr");
-let diffs=[];
-
-rows.forEach(row=>{
-
-let planned=parseFloat(row.cells[4].children[0].value)||0;
-let actual=parseFloat(row.cells[5].children[0].value)||0;
-
-let diff=actual-planned;
-
-row.cells[6].innerHTML=diff;
-
-let judge=Math.abs(diff)<=5 ? "○" : "×";
-
-row.cells[7].innerHTML=judge;
-
-row.cells[7].className=
-judge==="○" ? "good" : "bad";
-
-if(planned!==0 || actual!==0){
-diffs.push(diff);
-}
-
-});
-
-if(diffs.length===0) return;
-
-let avg=
-diffs.reduce((a,b)=>a+b,0)/
-diffs.length;
-
-let variance=
-diffs.reduce(
-(a,b)=>a+Math.pow(b-avg,2),0
-)/diffs.length;
-
-let sigma=Math.sqrt(variance);
-
-document.getElementById("avg").innerHTML=
-avg.toFixed(2);
-
-document.getElementById("sigma").innerHTML=
-sigma.toFixed(2);
-
-}
-
-function saveData(){
-
-let data=[];
-
-document.querySelectorAll("#tbody tr")
-.forEach(row=>{
-
-let rowData=[];
-
-for(let i=0;i<13;i++){
-
-if(i===6 || i===7){
-rowData.push(row.cells[i].innerText);
-}else{
-rowData.push(
-row.cells[i].children[0].value
-);
-}
-
-}
-
-data.push(rowData);
-
-});
-
-localStorage.setItem(
-"billetData",
-JSON.stringify(data)
-);
-
-alert("保存しました");
-
-}
-
-function loadData(){
-
-let data=JSON.parse(
-localStorage.getItem("billetData")
-);
-
-if(!data) return;
-
-data.forEach(r=>{
-
-addRow();
-
-let rows=
-document.querySelectorAll("#tbody tr");
-
-let row=
-rows[rows.length-1];
-
-for(let i=0;i<13;i++){
-
-if(i!==6 && i!==7){
-
-row.cells[i]
-.children[0].value=r[i];
-
-}
-
-}
-
-});
-
-calc();
-
-}
-
-for(let i=0;i<5;i++){
-addRow();
-}
-
-loadData();
-
-</script>
-
+  <!-- 2. 新規データ入力画面 -->
+  <div id="new-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>新規データ登録</h2>
+      <div style="width: 60px;"></div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="form-group">
+          <label for="input-date">日付</label>
+          <input type="date" id="input-date">
+        </div>
+        <div class="form-group">
+          <label for="input-lot">ロットNo. / 品番</label>
+          <input type="text" id="input-lot" placeholder="例: B-2026-01">
+        </div>
+        <div class="form-group">
+          <label for="input-length">ビレット長さ (mm)</label>
+          <input type="number" id="input-length" placeholder="例: 1250">
+        </div>
+        <div class="form-group">
+          <label for="input-count">本数</label>
+          <input type="number" id="input-count" placeholder="例: 10">
+        </div>
+        <div class="form-group">
+          <label for="input-memo">備考</label>
+          <input type="text" id="input-memo" placeholder="メモがあれば入力">
+        </div>
+        <button class="submit-btn" onclick="saveData()">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 過去データ一覧画面 -->
+  <div id="history-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>過去データ一覧</h2>
+      <div style="width: 60px;"></div>
+    </div>
+
+    <div class="content">
+      <div class="card" style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>ロットNo.</th>
+              <th>長さ(mm)</th>
+              <th>本数</th>
+              <th>備考</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+        <p id="history-empty" class="empty-msg">登録されたデータはありません。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 検索画面 -->
+  <div id="search-screen" class="screen">
+    <div class="app-header">
+      <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
+      <h2>データ検索</h2>
+      <div style="width: 60px;"></div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="search-keyword">日付・ロットNo.・長さ・備考で検索</label>
+          <input type="text" id="search-keyword" placeholder="キーワードを入力..." oninput="renderSearch()">
+        </div>
+      </div>
+
+      <div class="card" style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>ロットNo.</th>
+              <th>長さ(mm)</th>
+              <th>本数</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody id="search-tbody"></tbody>
+        </table>
+        <p id="search-empty" class="empty-msg">該当するデータはありません。</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'billet_app_records';
+
+    // 初期日付を今日に設定
+    document.getElementById('input-date').valueAsDate = new Date();
+
+    function getRecords() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function setRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      if (screenId === 'history-screen') {
+        renderHistory();
+      } else if (screenId === 'search-screen') {
+        renderSearch();
+      }
+    }
+
+    function saveData() {
+      const date = document.getElementById('input-date').value;
+      const lot = document.getElementById('input-lot').value.trim();
+      const length = document.getElementById('input-length').value.trim();
+      const count = document.getElementById('input-count').value.trim();
+      const memo = document.getElementById('input-memo').value.trim();
+
+      if (!date || !lot || !length) {
+        alert('日付・ロットNo.・ビレット長さは必須です。');
+        return;
+      }
+
+      const records = getRecords();
+      records.unshift({
+        id: Date.now(),
+        date,
+        lot,
+        length,
+        count: count || '-',
+        memo: memo || ''
+      });
+      setRecords(records);
+
+      // 入力欄クリア
+      document.getElementById('input-lot').value = '';
+      document.getElementById('input-length').value = '';
+      document.getElementById('input-count').value = '';
+      document.getElementById('input-memo').value = '';
+
+      alert('保存しました！');
+      showScreen('history-screen');
+    }
+
+    function deleteRecord(id) {
+      if (!confirm('このデータを削除しますか？')) return;
+      const records = getRecords().filter(item => item.id !== id);
+      setRecords(records);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const records = getRecords();
+      const tbody = document.getElementById('history-tbody');
+      const emptyMsg = document.getElementById('history-empty');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      records.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.date}</td>
+          <td>${item.lot}</td>
+          <td>${item.length}</td>
+          <td>${item.count}</td>
+          <td>${item.memo}</td>
+          <td><button class="del-btn" onclick="deleteRecord(${item.id})">削除</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSearch() {
+      const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+      const records = getRecords();
+      const tbody = document.getElementById('search-tbody');
+      const emptyMsg = document.getElementById('search-empty');
+      tbody.innerHTML = '';
+
+      const filtered = records.filter(item =>
+        item.date.toLowerCase().includes(keyword) ||
+        item.lot.toLowerCase().includes(keyword) ||
+        String(item.length).includes(keyword) ||
+        item.memo.toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.date}</td>
+          <td>${item.lot}</td>
+          <td>${item.length}</td>
+          <td>${item.count}</td>
+          <td>${item.memo}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
 </body>
 </html>
