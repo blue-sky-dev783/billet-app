@@ -33,8 +33,10 @@
       justify-content: center;
       align-items: center;
       color: #ffffff;
+      /* ヘルメットをかぶったペンギンが寸法測定をしているイラスト背景 */
+      /* ※GitHubに画像を置く場合は ./penguin-measure.png などに変更してください */
       background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)),
-                        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80');
+                        url('penguin-measure.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -43,13 +45,13 @@
 
     .cover-container {
       text-align: center;
-      background: rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(20, 30, 40, 0.38);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       padding: 2.8rem 2rem;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       max-width: 440px;
       width: 100%;
     }
@@ -59,13 +61,14 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       margin-bottom: 0.4rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
     }
 
     .cover-subtitle {
       font-size: 0.95rem;
-      opacity: 0.9;
+      opacity: 0.95;
       margin-bottom: 2.2rem;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
 
     .button-group {
@@ -102,7 +105,7 @@
     }
     .btn-search {
       background-color: rgba(255, 255, 255, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.55);
     }
 
     /* ===== サブ画面共通ヘッダー・レイアウト ===== */
@@ -136,7 +139,7 @@
 
     .content {
       padding: 0.8rem;
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
@@ -196,7 +199,7 @@
       border-collapse: collapse;
       font-size: 13px;
       background: #ffffff;
-      min-width: 640px;
+      min-width: 820px;
     }
 
     th, td {
@@ -277,7 +280,7 @@
 
     .history-meta {
       font-size: 0.82rem;
-      line-height: 1.6;
+      line-height: 1.65;
       margin-bottom: 0.6rem;
       color: #222;
     }
@@ -349,6 +352,22 @@
             <input type="text" id="material" placeholder="例: S45C">
           </div>
           <div class="form-group">
+            <label for="mold">鋳型</label>
+            <input type="text" id="mold" placeholder="例: M-01">
+          </div>
+          <div class="form-group">
+            <label for="crop-type">クロップ区分</label>
+            <input type="text" id="crop-type" placeholder="例: A / B">
+          </div>
+          <div class="form-group">
+            <label for="tolerance">交差</label>
+            <input type="text" id="tolerance" placeholder="例: ±5">
+          </div>
+          <div class="form-group">
+            <label for="out-of-tolerance">交差外れ</label>
+            <input type="text" id="out-of-tolerance" placeholder="例: なし / 1本">
+          </div>
+          <div class="form-group">
             <label for="correction">補正</label>
             <input type="number" step="any" id="correction" placeholder="例: 0">
           </div>
@@ -390,14 +409,16 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 50px;">No.</th>
+                <th style="width: 48px;">No.</th>
                 <th>ピットNo.</th>
                 <th>チャージNo.</th>
+                <th>圧延サイズ</th>
                 <th>刻印</th>
                 <th>予定寸法</th>
-                <th>実寸法</th>
+                <th>実測寸法</th>
+                <th>実測寸法Wチェック</th>
                 <th>予定寸法と実寸法の差</th>
-                <th style="width: 56px;">削除</th>
+                <th style="width: 54px;">削除</th>
               </tr>
             </thead>
             <tbody id="billet-tbody"></tbody>
@@ -441,7 +462,7 @@
     <div class="content">
       <div class="card">
         <div class="form-group" style="margin-bottom: 0;">
-          <label for="search-keyword">日付・材質・作業者・ピットNo.・チャージNo.・刻印で検索</label>
+          <label for="search-keyword">日付・材質・鋳型・クロップ区分・作業者・ピットNo.・チャージNo.・刻印で検索</label>
           <input type="text" id="search-keyword" placeholder="キーワードを入力..." oninput="renderSearch()">
         </div>
       </div>
@@ -454,7 +475,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'billet_length_records_v2';
+    const STORAGE_KEY = 'billet_length_records_v3';
 
     // 初期日付を今日に設定し、最初は10行用意
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -490,9 +511,11 @@
           <td class="row-num"></td>
           <td><input type="text" class="pit-no" placeholder="ピット"></td>
           <td><input type="text" class="charge-no" placeholder="チャージ"></td>
+          <td><input type="text" class="rolling-size" placeholder="サイズ"></td>
           <td><input type="text" class="stamp-no" placeholder="刻印"></td>
           <td><input type="number" step="any" class="plan-len" oninput="recalcAll()"></td>
           <td><input type="number" step="any" class="actual-len" oninput="recalcAll()"></td>
+          <td><input type="text" class="w-check" placeholder="Wチェック"></td>
           <td class="diff-cell">-</td>
           <td><button type="button" class="remove-row-btn" onclick="removeRow(this)">削除</button></td>
         `;
@@ -571,18 +594,22 @@
       rows.forEach(tr => {
         const pitNo = tr.querySelector('.pit-no').value.trim();
         const chargeNo = tr.querySelector('.charge-no').value.trim();
+        const rollingSize = tr.querySelector('.rolling-size').value.trim();
         const stampNo = tr.querySelector('.stamp-no').value.trim();
         const planLen = tr.querySelector('.plan-len').value.trim();
         const actualLen = tr.querySelector('.actual-len').value.trim();
+        const wCheck = tr.querySelector('.w-check').value.trim();
         const diffText = tr.querySelector('.diff-cell').textContent;
 
-        if (pitNo || chargeNo || stampNo || planLen || actualLen) {
+        if (pitNo || chargeNo || rollingSize || stampNo || planLen || actualLen || wCheck) {
           items.push({
             pitNo,
             chargeNo,
+            rollingSize,
             stampNo,
             planLen,
             actualLen,
+            wCheck,
             diff: diffText
           });
         }
@@ -603,6 +630,10 @@
         rollingDate: document.getElementById('rolling-date').value,
         measureDate: document.getElementById('measure-date').value,
         material: document.getElementById('material').value.trim(),
+        mold: document.getElementById('mold').value.trim(),
+        cropType: document.getElementById('crop-type').value.trim(),
+        tolerance: document.getElementById('tolerance').value.trim(),
+        outOfTolerance: document.getElementById('out-of-tolerance').value.trim(),
         correction: document.getElementById('correction').value.trim(),
         startTime: document.getElementById('start-time').value,
         endTime: document.getElementById('end-time').value,
@@ -639,9 +670,11 @@
           <td>${idx + 1}</td>
           <td>${it.pitNo || '-'}</td>
           <td>${it.chargeNo || '-'}</td>
+          <td>${it.rollingSize || '-'}</td>
           <td>${it.stampNo || '-'}</td>
           <td>${it.planLen || '-'}</td>
           <td>${it.actualLen || '-'}</td>
+          <td>${it.wCheck || '-'}</td>
           <td>${it.diff || '-'}</td>
         </tr>
       `).join('');
@@ -652,10 +685,14 @@
             <strong>圧延日:</strong> ${rec.rollingDate || '-'} ／
             <strong>測定日:</strong> ${rec.measureDate || '-'} ／
             <strong>材質:</strong> ${rec.material || '-'} ／
-            <strong>補正:</strong> ${rec.correction || '-'}<br>
+            <strong>鋳型:</strong> ${rec.mold || '-'} ／
+            <strong>クロップ区分:</strong> ${rec.cropType || '-'}<br>
+            <strong>交差:</strong> ${rec.tolerance || '-'} ／
+            <strong>交差外れ:</strong> ${rec.outOfTolerance || '-'} ／
+            <strong>補正:</strong> ${rec.correction || '-'} ／
             <strong>時間:</strong> ${rec.startTime || '-'} 〜 ${rec.endTime || '-'} ／
-            <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'} ／
-            <strong>作業者:</strong> ${rec.worker1 || '-'}、${rec.worker2 || '-'}<br>
+            <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'}<br>
+            <strong>作業者:</strong> ${rec.worker1 || '-'}、${rec.worker2 || '-'} ／
             <strong>平均値(x̄):</strong> ${rec.meanX || '-'} ／
             <strong>σ:</strong> ${rec.sigma || '-'}
           </div>
@@ -666,10 +703,12 @@
                   <th>No.</th>
                   <th>ピットNo.</th>
                   <th>チャージNo.</th>
+                  <th>圧延サイズ</th>
                   <th>刻印</th>
                   <th>予定寸法</th>
-                  <th>実寸法</th>
-                  <th>差</th>
+                  <th>実測寸法</th>
+                  <th>実測寸法Wチェック</th>
+                  <th>予定寸法と実寸法の差</th>
                 </tr>
               </thead>
               <tbody>${rowsHtml}</tbody>
@@ -703,12 +742,13 @@
 
       const filtered = records.filter(rec => {
         const metaText = [
-          rec.rollingDate, rec.measureDate, rec.material, rec.correction,
+          rec.rollingDate, rec.measureDate, rec.material, rec.mold, rec.cropType,
+          rec.tolerance, rec.outOfTolerance, rec.correction,
           rec.startTime, rec.endTime, rec.measureTemp, rec.worker1, rec.worker2
         ].join(' ').toLowerCase();
 
         const itemText = (rec.items || []).map(it =>
-          [it.pitNo, it.chargeNo, it.stampNo, it.planLen, it.actualLen].join(' ')
+          [it.pitNo, it.chargeNo, it.rollingSize, it.stampNo, it.planLen, it.actualLen, it.wCheck].join(' ')
         ).join(' ').toLowerCase();
 
         return !kw || metaText.includes(kw) || itemText.includes(kw);
