@@ -115,7 +115,7 @@
       justify-content: space-between;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
     }
 
     .app-header h2 {
@@ -135,8 +135,8 @@
     }
 
     .content {
-      padding: 1rem;
-      max-width: 720px;
+      padding: 0.8rem;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -148,60 +148,104 @@
       margin-bottom: 1rem;
     }
 
-    .form-group {
-      margin-bottom: 0.9rem;
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid #eef2f5;
+    }
+
+    /* ヘッダー情報グリッド */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
       color: #555;
     }
 
-    .form-group input,
-    .form-group select {
+    .form-group input {
       width: 100%;
-      padding: 0.65rem;
+      padding: 0.55rem;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
 
-    .submit-btn {
-      width: 100%;
-      padding: 0.85rem;
-      background-color: #2e8b57;
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 0.5rem;
+    .form-group input[readonly] {
+      background-color: #f0f4f8;
+      font-weight: 700;
+      color: #1f4e78;
     }
 
-    /* テーブル */
+    /* 入力テーブル */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
       background: #ffffff;
+      min-width: 640px;
     }
 
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px 6px;
+      border: 1px solid #cfd8dc;
+      padding: 6px 4px;
       text-align: center;
     }
 
     th {
       background-color: #eef2f5;
       font-weight: 600;
+      white-space: nowrap;
     }
 
-    .del-btn {
+    td input {
+      width: 100%;
+      padding: 5px 6px;
+      border: 1px solid #d0d7de;
+      border-radius: 4px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .diff-cell {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .diff-plus { color: #1b6ca8; }
+    .diff-minus { color: #c0392b; }
+
+    .row-actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .add-row-btn {
+      background-color: #4682b4;
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .remove-row-btn {
       background: #e74c3c;
       color: #fff;
       border: none;
@@ -209,6 +253,44 @@
       border-radius: 4px;
       font-size: 11px;
       cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #2e8b57;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .history-item {
+      border: 1px solid #dce3e8;
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-bottom: 0.85rem;
+      background: #fafcfd;
+    }
+
+    .history-meta {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin-bottom: 0.6rem;
+      color: #222;
+    }
+
+    .del-btn {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 0.5rem;
     }
 
     .empty-msg {
@@ -245,34 +327,90 @@
   <div id="new-screen" class="screen">
     <div class="app-header">
       <button class="back-btn" onclick="showScreen('cover-screen')">← 表紙</button>
-      <h2>新規データ登録</h2>
+      <h2>新規データ入力</h2>
       <div style="width: 60px;"></div>
     </div>
 
     <div class="content">
+      <!-- 表の上の項目 -->
       <div class="card">
-        <div class="form-group">
-          <label for="input-date">日付</label>
-          <input type="date" id="input-date">
+        <div class="section-title">測定・ロット情報</div>
+        <div class="meta-grid">
+          <div class="form-group">
+            <label for="rolling-date">圧延日</label>
+            <input type="date" id="rolling-date">
+          </div>
+          <div class="form-group">
+            <label for="measure-date">測定日</label>
+            <input type="date" id="measure-date">
+          </div>
+          <div class="form-group">
+            <label for="material">材質</label>
+            <input type="text" id="material" placeholder="例: S45C">
+          </div>
+          <div class="form-group">
+            <label for="correction">補正</label>
+            <input type="number" step="any" id="correction" placeholder="例: 0">
+          </div>
+          <div class="form-group">
+            <label for="start-time">開始時間</label>
+            <input type="time" id="start-time">
+          </div>
+          <div class="form-group">
+            <label for="end-time">終了時間</label>
+            <input type="time" id="end-time">
+          </div>
+          <div class="form-group">
+            <label for="measure-temp">測定温度 (℃)</label>
+            <input type="number" step="any" id="measure-temp" placeholder="例: 25">
+          </div>
+          <div class="form-group">
+            <label for="worker1">作業者 1</label>
+            <input type="text" id="worker1" placeholder="氏名1">
+          </div>
+          <div class="form-group">
+            <label for="worker2">作業者 2</label>
+            <input type="text" id="worker2" placeholder="氏名2">
+          </div>
+          <div class="form-group">
+            <label for="mean-x">平均値（x̄）</label>
+            <input type="text" id="mean-x" readonly placeholder="自動計算">
+          </div>
+          <div class="form-group">
+            <label for="sigma-val">σ（標準偏差）</label>
+            <input type="text" id="sigma-val" readonly placeholder="自動計算">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="input-lot">ロットNo. / 品番</label>
-          <input type="text" id="input-lot" placeholder="例: B-2026-01">
-        </div>
-        <div class="form-group">
-          <label for="input-length">ビレット長さ (mm)</label>
-          <input type="number" id="input-length" placeholder="例: 1250">
-        </div>
-        <div class="form-group">
-          <label for="input-count">本数</label>
-          <input type="number" id="input-count" placeholder="例: 10">
-        </div>
-        <div class="form-group">
-          <label for="input-memo">備考</label>
-          <input type="text" id="input-memo" placeholder="メモがあれば入力">
-        </div>
-        <button class="submit-btn" onclick="saveData()">保存する</button>
       </div>
+
+      <!-- 複数本まとめて入力できる表 -->
+      <div class="card">
+        <div class="section-title">ビレット測定表（複数本入力）</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">No.</th>
+                <th>ピットNo.</th>
+                <th>チャージNo.</th>
+                <th>刻印</th>
+                <th>予定寸法</th>
+                <th>実寸法</th>
+                <th>予定寸法と実寸法の差</th>
+                <th style="width: 56px;">削除</th>
+              </tr>
+            </thead>
+            <tbody id="billet-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="row-actions">
+          <button type="button" class="add-row-btn" onclick="addBilletRow()">＋ 1行追加</button>
+          <button type="button" class="add-row-btn" onclick="addBilletRow(5)">＋ 5行追加</button>
+        </div>
+      </div>
+
+      <button type="button" class="submit-btn" onclick="saveData()">この内容で保存する</button>
     </div>
   </div>
 
@@ -285,20 +423,8 @@
     </div>
 
     <div class="content">
-      <div class="card" style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>ロットNo.</th>
-              <th>長さ(mm)</th>
-              <th>本数</th>
-              <th>備考</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="history-tbody"></tbody>
-        </table>
+      <div class="card">
+        <div id="history-list"></div>
         <p id="history-empty" class="empty-msg">登録されたデータはありません。</p>
       </div>
     </div>
@@ -315,34 +441,26 @@
     <div class="content">
       <div class="card">
         <div class="form-group" style="margin-bottom: 0;">
-          <label for="search-keyword">日付・ロットNo.・長さ・備考で検索</label>
+          <label for="search-keyword">日付・材質・作業者・ピットNo.・チャージNo.・刻印で検索</label>
           <input type="text" id="search-keyword" placeholder="キーワードを入力..." oninput="renderSearch()">
         </div>
       </div>
 
-      <div class="card" style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>ロットNo.</th>
-              <th>長さ(mm)</th>
-              <th>本数</th>
-              <th>備考</th>
-            </tr>
-          </thead>
-          <tbody id="search-tbody"></tbody>
-        </table>
+      <div class="card">
+        <div id="search-list"></div>
         <p id="search-empty" class="empty-msg">該当するデータはありません。</p>
       </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'billet_app_records';
+    const STORAGE_KEY = 'billet_length_records_v2';
 
-    // 初期日付を今日に設定
-    document.getElementById('input-date').valueAsDate = new Date();
+    // 初期日付を今日に設定し、最初は10行用意
+    const todayStr = new Date().toISOString().slice(0, 10);
+    document.getElementById('rolling-date').value = todayStr;
+    document.getElementById('measure-date').value = todayStr;
+    addBilletRow(10);
 
     function getRecords() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -364,104 +482,113 @@
       }
     }
 
-    function saveData() {
-      const date = document.getElementById('input-date').value;
-      const lot = document.getElementById('input-lot').value.trim();
-      const length = document.getElementById('input-length').value.trim();
-      const count = document.getElementById('input-count').value.trim();
-      const memo = document.getElementById('input-memo').value.trim();
-
-      if (!date || !lot || !length) {
-        alert('日付・ロットNo.・ビレット長さは必須です。');
-        return;
-      }
-
-      const records = getRecords();
-      records.unshift({
-        id: Date.now(),
-        date,
-        lot,
-        length,
-        count: count || '-',
-        memo: memo || ''
-      });
-      setRecords(records);
-
-      // 入力欄クリア
-      document.getElementById('input-lot').value = '';
-      document.getElementById('input-length').value = '';
-      document.getElementById('input-count').value = '';
-      document.getElementById('input-memo').value = '';
-
-      alert('保存しました！');
-      showScreen('history-screen');
-    }
-
-    function deleteRecord(id) {
-      if (!confirm('このデータを削除しますか？')) return;
-      const records = getRecords().filter(item => item.id !== id);
-      setRecords(records);
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const records = getRecords();
-      const tbody = document.getElementById('history-tbody');
-      const emptyMsg = document.getElementById('history-empty');
-      tbody.innerHTML = '';
-
-      if (records.length === 0) {
-        emptyMsg.style.display = 'block';
-        return;
-      }
-      emptyMsg.style.display = 'none';
-
-      records.forEach(item => {
+    function addBilletRow(count = 1) {
+      const tbody = document.getElementById('billet-tbody');
+      for (let i = 0; i < count; i++) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${item.date}</td>
-          <td>${item.lot}</td>
-          <td>${item.length}</td>
-          <td>${item.count}</td>
-          <td>${item.memo}</td>
-          <td><button class="del-btn" onclick="deleteRecord(${item.id})">削除</button></td>
+          <td class="row-num"></td>
+          <td><input type="text" class="pit-no" placeholder="ピット"></td>
+          <td><input type="text" class="charge-no" placeholder="チャージ"></td>
+          <td><input type="text" class="stamp-no" placeholder="刻印"></td>
+          <td><input type="number" step="any" class="plan-len" oninput="recalcAll()"></td>
+          <td><input type="number" step="any" class="actual-len" oninput="recalcAll()"></td>
+          <td class="diff-cell">-</td>
+          <td><button type="button" class="remove-row-btn" onclick="removeRow(this)">削除</button></td>
         `;
         tbody.appendChild(tr);
-      });
+      }
+      refreshRowNumbers();
+      recalcAll();
     }
 
-    function renderSearch() {
-      const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
-      const records = getRecords();
-      const tbody = document.getElementById('search-tbody');
-      const emptyMsg = document.getElementById('search-empty');
-      tbody.innerHTML = '';
-
-      const filtered = records.filter(item =>
-        item.date.toLowerCase().includes(keyword) ||
-        item.lot.toLowerCase().includes(keyword) ||
-        String(item.length).includes(keyword) ||
-        item.memo.toLowerCase().includes(keyword)
-      );
-
-      if (filtered.length === 0) {
-        emptyMsg.style.display = 'block';
+    function removeRow(btn) {
+      const tbody = document.getElementById('billet-tbody');
+      if (tbody.rows.length <= 1) {
+        alert('最低1行は必要です。');
         return;
       }
-      emptyMsg.style.display = 'none';
+      btn.closest('tr').remove();
+      refreshRowNumbers();
+      recalcAll();
+    }
 
-      filtered.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.date}</td>
-          <td>${item.lot}</td>
-          <td>${item.length}</td>
-          <td>${item.count}</td>
-          <td>${item.memo}</td>
-        `;
-        tbody.appendChild(tr);
+    function refreshRowNumbers() {
+      const rows = document.querySelectorAll('#billet-tbody tr');
+      rows.forEach((tr, idx) => {
+        tr.querySelector('.row-num').textContent = idx + 1;
       });
     }
-  </script>
-</body>
-</html>
+
+    function recalcAll() {
+      const rows = document.querySelectorAll('#billet-tbody tr');
+      const actuals = [];
+
+      rows.forEach(tr => {
+        const planVal = parseFloat(tr.querySelector('.plan-len').value);
+        const actualVal = parseFloat(tr.querySelector('.actual-len').value);
+        const diffCell = tr.querySelector('.diff-cell');
+
+        diffCell.classList.remove('diff-plus', 'diff-minus');
+
+        if (!isNaN(actualVal)) {
+          actuals.push(actualVal);
+        }
+
+        if (!isNaN(planVal) && !isNaN(actualVal)) {
+          const diff = actualVal - planVal;
+          const rounded = Math.round(diff * 1000) / 1000;
+          diffCell.textContent = (rounded > 0 ? '+' : '') + rounded;
+          if (rounded > 0) diffCell.classList.add('diff-plus');
+          if (rounded < 0) diffCell.classList.add('diff-minus');
+        } else {
+          diffCell.textContent = '-';
+        }
+      });
+
+      const meanInput = document.getElementById('mean-x');
+      const sigmaInput = document.getElementById('sigma-val');
+
+      if (actuals.length === 0) {
+        meanInput.value = '';
+        sigmaInput.value = '';
+        return;
+      }
+
+      const sum = actuals.reduce((acc, v) => acc + v, 0);
+      const mean = sum / actuals.length;
+      const variance = actuals.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / actuals.length;
+      const sigma = Math.sqrt(variance);
+
+      meanInput.value = (Math.round(mean * 1000) / 1000).toString();
+      sigmaInput.value = (Math.round(sigma * 1000) / 1000).toString();
+    }
+
+    function collectRowsData() {
+      const rows = document.querySelectorAll('#billet-tbody tr');
+      const items = [];
+
+      rows.forEach(tr => {
+        const pitNo = tr.querySelector('.pit-no').value.trim();
+        const chargeNo = tr.querySelector('.charge-no').value.trim();
+        const stampNo = tr.querySelector('.stamp-no').value.trim();
+        const planLen = tr.querySelector('.plan-len').value.trim();
+        const actualLen = tr.querySelector('.actual-len').value.trim();
+        const diffText = tr.querySelector('.diff-cell').textContent;
+
+        if (pitNo || chargeNo || stampNo || planLen || actualLen) {
+          items.push({
+            pitNo,
+            chargeNo,
+            stampNo,
+            planLen,
+            actualLen,
+            diff: diffText
+          });
+        }
+      });
+
+      return items;
+    }
+
+    function saveData
