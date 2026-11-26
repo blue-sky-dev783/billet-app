@@ -1136,4 +1136,337 @@
 
         const savedPlanLen = rawPlan !== '' ? rawPlan : (!isNaN(effectivePlan) ? String(effectivePlan) : '');
 
-        if (pitNo || chargeNo || rollingSize || stampNo || rowMemo || savedPlanLen || actual
+        if (pitNo || chargeNo || rollingSize || stampNo || rowMemo || savedPlanLen || actualLen || wCheck) {
+          items.push({
+            pitNo,
+            chargeNo,
+            rollingSize,
+            stampNo,
+            rowMemo,
+            planLen: savedPlanLen,
+            actualLen,
+            wCheck,
+            diff: diffText
+          });
+        }
+      });
+
+      return items;
+    }
+
+    function buildRecordObject(id) {
+      return {
+        id: id || Date.now(),
+        updatedAt: new Date().toLocaleString('ja-JP'),
+        rollingDate: document.getElementById('rolling-date').value,
+        measureDate: document.getElementById('measure-date').value,
+        material: document.getElementById('material').value.trim(),
+        mold: document.getElementById('mold').value.trim(),
+        cropType: document.getElementById('crop-type').value.trim(),
+        tolerance: document.getElementById('tolerance').value.trim(),
+        outOfTolerance: document.getElementById('out-of-tolerance').value.trim(),
+        targetAllowance: document.getElementById('target-allowance').value.trim(),
+        correction: document.getElementById('correction').value.trim(),
+        startTime: document.getElementById('start-time').value,
+        endTime: document.getElementById('end-time').value,
+        measureTemp: document.getElementById('measure-temp').value.trim(),
+        measureTeam: document.getElementById('measure-team').value.trim(),
+        meanX: document.getElementById('mean-x').value,
+        sigma: document.getElementById('sigma-val').value,
+        remarks: document.getElementById('remarks').value.trim(),
+        items: collectRowsData()
+      };
+    }
+
+    // 一時保存処理
+    function saveTempData() {
+      if (isRecording) {
+        stopVoiceInput();
+      }
+      const record = buildRecordObject(editingState && editingState.source === 'draft' ? editingState.id : Date.now());
+      const hasAnyMeta = record.material || record.mold || record.cropType || record.measureTeam || record.remarks;
+      if (record.items.length === 0 && !hasAnyMeta) {
+        alert('一時保存する内容を入力してください。');
+        return;
+      }
+
+      const drafts = getDrafts();
+      if (editingState && editingState.source === 'draft') {
+        const idx = drafts.findIndex(d => d.id === editingState.id);
+        if (idx !== -1) {
+          drafts[idx] = record;
+        } else {
+          drafts.unshift(record);
+        }
+      } else {
+        drafts.unshift(record);
+      }
+
+      setDrafts(drafts);
+      resetFormToNew();
+      alert('一時保存ファイルに保存しました！');
+      showScreen('draft-screen');
+    }
+
+    // 本保存（過去データへ保存）処理
+    function saveData() {
+      if (isRecording) {
+        stopVoiceInput();
+      }
+      const items = collectRowsData();
+      if (items.length === 0) {
+        alert('表に1本以上のデータを入力してください。');
+        return;
+      }
+
+      const targetId = (editingState && editingState.source === 'history') ? editingState.id : Date.now();
+      const record = buildRecordObject(targetId);
+      const records = getRecords();
+
+      if (editingState && editingState.source === 'history') {
+        // 過去データの編集上書き
+        const idx = records.findIndex(r => r.id === editingState.id);
+        if (idx !== -1) {
+          records[idx] = record;
+        } else {
+          records.unshift(record);
+        }
+      } else {
+        // 新規保存 または 一時保存からの本保存
+        records.unshift(record);
+        if (editingState && editingState.source === 'draft') {
+          const drafts = getDrafts().filter(d => d.id !== editingState.id);
+          setDrafts(drafts);
+        }
+      }
+
+      setRecords(records);
+      resetFormToNew();
+      alert('過去データに保存しました！');
+      showScreen('history-screen');
+    }
+
+    // 一時保存一覧から直接本保存
+    function promoteDraftToHistory(id) {
+      const drafts = getDrafts();
+      const draft = drafts.find(d => d.id === id);
+      if (!draft) return;
+
+      if (!draft.items || draft.items.length === 0) {
+        alert('ビレット測定表に1本以上のデータがないため本保存できません。「編集」から入力してください。');
+        return;
+      }
+
+      if (!confirm('この一時保存データを過去データへ本保存しますか？')) return;
+
+      const records = getRecords();
+      const savedRecord = { ...draft, id: Date.now(), updatedAt: new Date().toLocaleString('ja-JP') };
+      records.unshift(savedRecord);
+      setRecords(records);
+
+      setDrafts(drafts.filter(d => d.id !== id));
+      renderDrafts();
+      alert('過去データに保存しました！');
+    }
+
+    // 編集画面へ読み込み（source: 'draft' | 'history'）
+    function editEntry(source, id) {
+      const list = source === 'draft' ? getDrafts() : getRecords();
+      const target = list.find(r => r.id === id);
+      if (!target) return;
+
+      editingState = { source, id };
+      document.getElementById('form-screen-title').textContent =
+        source === 'draft' ? '一時保存データの編集' : '過去データの編集';
+      document.getElementById('edit-banner').classList.add('active');
+      document.getElementById('edit-banner-text').textContent =
+        source === 'draft'
+          ? '📝 一時保存データを編集中です（一時保存更新・本保存どちらも可能）'
+          : '📁 過去データを編集中です（「更新して保存」で上書きされます）';
+
+      document.getElementById('btn-temp-save').style.display = source === 'draft' ? 'block' : 'none';
+      document.getElementById('btn-final-save').textContent =
+        source === 'history' ? '更新して保存する' : 'この内容で本保存する';
+
+      document.getElementById('rolling-date').value = target.rollingDate || '';
+      document.getElementById('measure-date').value = target.measureDate || '';
+      document.getElementById('material').value = target.material || '';
+      document.getElementById('mold').value = target.mold || '';
+      document.getElementById('crop-type').value = target.cropType || '';
+      document.getElementById('tolerance').value = target.tolerance || '';
+      document.getElementById('out-of-tolerance').value = target.outOfTolerance || '';
+      document.getElementById('target-allowance').value = target.targetAllowance || '';
+      document.getElementById('correction').value = target.correction || '';
+      document.getElementById('start-time').value = target.startTime || '';
+      document.getElementById('end-time').value = target.endTime || '';
+      document.getElementById('measure-temp').value = target.measureTemp || '';
+      document.getElementById('measure-team').value = target.measureTeam || '';
+      document.getElementById('remarks').value = target.remarks || '';
+
+      const tbody = document.getElementById('billet-tbody');
+      tbody.innerHTML = '';
+      const items = target.items || [];
+      if (items.length > 0) {
+        items.forEach(it => addBilletRow(1, it));
+      } else {
+        addBilletRow(5);
+      }
+
+      showScreen('new-screen');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteDraft(id) {
+      if (!confirm('この一時保存データを削除しますか？')) return;
+      setDrafts(getDrafts().filter(d => d.id !== id));
+      renderDrafts();
+    }
+
+    function deleteRecord(id) {
+      if (!confirm('この記録を削除しますか？')) return;
+      const records = getRecords().filter(r => r.id !== id);
+      setRecords(records);
+      renderHistory();
+      renderSearch();
+    }
+
+    function buildRecordHtml(rec, mode) {
+      // mode: 'draft' | 'history' | 'search'
+      const rowsHtml = (rec.items || []).map((it, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${it.pitNo || '-'}</td>
+          <td>${it.chargeNo || '-'}</td>
+          <td>${it.rollingSize || '-'}</td>
+          <td>${it.stampNo || '-'}</td>
+          <td>${it.rowMemo || '-'}</td>
+          <td>${it.planLen || '-'}</td>
+          <td>${it.actualLen || '-'}</td>
+          <td>${it.wCheck || '-'}</td>
+          <td>${it.diff || '-'}</td>
+        </tr>
+      `).join('');
+
+      let buttonsHtml = '';
+      if (mode === 'draft') {
+        buttonsHtml = `
+          <div class="card-actions">
+            <button type="button" class="action-btn edit-btn" onclick="editEntry('draft', ${rec.id})">✏️ 編集</button>
+            <button type="button" class="action-btn promote-btn" onclick="promoteDraftToHistory(${rec.id})">✅ 保存する（過去データへ）</button>
+            <button type="button" class="action-btn del-btn" onclick="deleteDraft(${rec.id})">削除</button>
+          </div>
+        `;
+      } else if (mode === 'history' || mode === 'search') {
+        buttonsHtml = `
+          <div class="card-actions">
+            <button type="button" class="action-btn edit-btn" onclick="editEntry('history', ${rec.id})">✏️ 編集</button>
+            ${mode === 'history' ? `<button type="button" class="action-btn del-btn" onclick="deleteRecord(${rec.id})">この記録を削除</button>` : ''}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="history-item">
+          <div class="history-meta">
+            <strong>圧延日:</strong> ${rec.rollingDate || '-'} ／
+            <strong>測定日:</strong> ${rec.measureDate || '-'} ／
+            <strong>材質:</strong> ${rec.material || '-'} ／
+            <strong>鋳型:</strong> ${rec.mold || '-'} ／
+            <strong>クロップ区分:</strong> ${rec.cropType || '-'}<br>
+            <strong>交差:</strong> ${rec.tolerance || '-'} ／
+            <strong>交差外れ:</strong> ${rec.outOfTolerance || '-'} ／
+            <strong>狙い代:</strong> ${rec.targetAllowance || '-'} ／
+            <strong>補正:</strong> ${rec.correction || '-'} ／
+            <strong>時間:</strong> ${rec.startTime || '-'} 〜 ${rec.endTime || '-'} ／
+            <strong>測定温度:</strong> ${rec.measureTemp ? rec.measureTemp + '℃' : '-'}<br>
+            <strong>測定班:</strong> ${rec.measureTeam || '-'} ／
+            <strong>平均値(x̄):</strong> ${rec.meanX || '-'} ／
+            <strong>σ:</strong> ${rec.sigma || '-'}<br>
+            <strong>備考:</strong> ${rec.remarks || '-'}
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>ピットNo.</th>
+                  <th>チャージNo.</th>
+                  <th>圧延サイズ</th>
+                  <th>刻印</th>
+                  <th>メモ</th>
+                  <th>予定寸法</th>
+                  <th>実測寸法</th>
+                  <th>実測寸法Wチェック</th>
+                  <th>予定寸法と実寸法の差</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml || '<tr><td colspan="10">明細データなし</td></tr>'}</tbody>
+            </table>
+          </div>
+          ${buttonsHtml}
+        </div>
+      `;
+    }
+
+    function renderDrafts() {
+      const drafts = getDrafts();
+      const listEl = document.getElementById('draft-list');
+      const emptyEl = document.getElementById('draft-empty');
+
+      if (drafts.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = drafts.map(rec => buildRecordHtml(rec, 'draft')).join('');
+    }
+
+    function renderHistory() {
+      const records = getRecords();
+      const listEl = document.getElementById('history-list');
+      const emptyEl = document.getElementById('history-empty');
+
+      if (records.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = records.map(rec => buildRecordHtml(rec, 'history')).join('');
+    }
+
+    function renderSearch() {
+      const kw = document.getElementById('search-keyword').value.trim().toLowerCase();
+      const records = getRecords();
+      const listEl = document.getElementById('search-list');
+      const emptyEl = document.getElementById('search-empty');
+
+      const filtered = records.filter(rec => {
+        const metaText = [
+          rec.rollingDate, rec.measureDate, rec.material, rec.mold, rec.cropType,
+          rec.tolerance, rec.outOfTolerance, rec.targetAllowance, rec.correction,
+          rec.startTime, rec.endTime, rec.measureTemp, rec.measureTeam, rec.remarks
+        ].join(' ').toLowerCase();
+
+        const itemText = (rec.items || []).map(it =>
+          [it.pitNo, it.chargeNo, it.rollingSize, it.stampNo, it.rowMemo, it.planLen, it.actualLen, it.wCheck].join(' ')
+        ).join(' ').toLowerCase();
+
+        return !kw || metaText.includes(kw) || itemText.includes(kw);
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = filtered.map(rec => buildRecordHtml(rec, 'search')).join('');
+    }
+  </script>
+</body>
+</html>
